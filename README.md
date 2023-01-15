@@ -1,4 +1,5 @@
 # cna
+![Build](https://github.com/isdimaggio/cna/actions/workflows/maven.yml/badge.svg)  
 CNA, acronimo ricorsivo di (CNA's not AutoCAD) è un programma di CAD (Computer Assisted Drawing) realizzato in Java
 utilizzando il toolkit grafico AWT+Swing.
 
