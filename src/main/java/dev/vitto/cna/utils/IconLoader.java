@@ -1,3 +1,22 @@
+/*
+Copyright 2023 Vittorio Lo Mele
+Copyright 2023 I.T.E.T. Luigi Di Maggio
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+@author "Vittorio Lo Mele"
+*/
+
 package dev.vitto.cna.utils;
 
 import javax.imageio.ImageIO;
@@ -163,6 +182,160 @@ public class IconLoader {
             PROGRAM_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/program-icon.png")));
         } catch (Exception e) {
             PROGRAM_ICON = new ImageIcon();
+        }
+    }
+
+    public static ImageIcon GRID_TEXTURE;
+    public static ImageIcon DELETE_ICON;
+    public static ImageIcon SETTINGS_ICON;
+    public static ImageIcon CENTER_RAD_CMD;
+    public static ImageIcon ELLIPSE_CMD;
+    public static ImageIcon FILL_OFF_CMD;
+    public static ImageIcon FILL_ON_CMD;
+    public static ImageIcon HAND_CMD;
+    public static ImageIcon LINE_CMD;
+    public static ImageIcon POINT_CMD;
+    public static ImageIcon RECT_CMD;
+    public static ImageIcon TEXT_CMD;
+    public static ImageIcon STROKE_1;
+    public static ImageIcon STROKE_2;
+    public static ImageIcon STROKE_3;
+    public static ImageIcon STROKE_4;
+    public static ImageIcon STROKE_5;
+
+    static {
+        try {
+            GRID_TEXTURE = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/grid-texture.png")));
+        } catch (Exception e) {
+            GRID_TEXTURE = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            DELETE_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/delete-icon.png")));
+        } catch (Exception e) {
+            DELETE_ICON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            SETTINGS_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/settings-icon.png")));
+        } catch (Exception e) {
+            SETTINGS_ICON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            CENTER_RAD_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/center-rad-cmd.bmp")));
+        } catch (Exception e) {
+            CENTER_RAD_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            ELLIPSE_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/ellipse-cmd.bmp")));
+        } catch (Exception e) {
+            ELLIPSE_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            FILL_OFF_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/fill-off.bmp")));
+        } catch (Exception e) {
+            FILL_OFF_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            FILL_ON_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/fill-on.bmp")));
+        } catch (Exception e) {
+            FILL_ON_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            HAND_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/hand-cmd.bmp")));
+        } catch (Exception e) {
+            HAND_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            LINE_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/line-cmd.bmp")));
+        } catch (Exception e) {
+            LINE_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            POINT_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/point-cmd.bmp")));
+        } catch (Exception e) {
+            POINT_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            RECT_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/rect-cmd.bmp")));
+        } catch (Exception e) {
+            RECT_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            TEXT_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/text-cmd.bmp")));
+        } catch (Exception e) {
+            TEXT_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            STROKE_1 = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/strokes/stroke1.bmp")));
+        } catch (Exception e) {
+            STROKE_1 = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            STROKE_2 = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/strokes/stroke2.bmp")));
+        } catch (Exception e) {
+            STROKE_2 = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            STROKE_3 = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/strokes/stroke3.bmp")));
+        } catch (Exception e) {
+            STROKE_3 = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            STROKE_4 = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/strokes/stroke4.bmp")));
+        } catch (Exception e) {
+            STROKE_4 = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            STROKE_5 = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/strokes/stroke5.bmp")));
+        } catch (Exception e) {
+            STROKE_5 = new ImageIcon();
         }
     }
 

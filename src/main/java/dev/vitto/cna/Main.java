@@ -22,11 +22,13 @@ package dev.vitto.cna;
 
 import dev.vitto.cna.windows.MainWindow;
 
-import java.io.IOException;
 import java.util.Locale;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+
+    public static Project currentProject;
+
+    public static void main(String[] args) {
 
         boolean isMacOS = false;
 
@@ -37,6 +39,8 @@ public class Main {
             isMacOS = true;
         }
 
-        MainWindow mw = new MainWindow(isMacOS);
+        currentProject = new Project();
+        new MainWindow(isMacOS, currentProject);
+
     }
 }

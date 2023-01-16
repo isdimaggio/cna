@@ -17,29 +17,17 @@ limitations under the License.
 @author "Vittorio Lo Mele"
 */
 
-package dev.vitto.cna.components;
+package dev.vitto.cna.utils;
 
 import javax.swing.*;
-import java.awt.event.KeyEvent;
+import java.awt.*;
 
-public class ViewMenu {
+public class IconResize {
 
-    public static JMenu get() {
-        JMenu menu = new JMenu("Visualizza (V)");
-        JCheckBoxMenuItem menuItem;
-        menu.setMnemonic(KeyEvent.VK_V);
-        menu.getAccessibleContext().setAccessibleDescription("Gestione dell'interfaccia");
-
-        menuItem = new JCheckBoxMenuItem("Toolbar Disegno");
-        menuItem.setSelected(true);
-        menu.add(menuItem);
-
-        menuItem = new JCheckBoxMenuItem("Toolbar Colori e Tratto");
-        menuItem.setSelected(true);
-        menu.add(menuItem);
-
-
-        return menu;
+    public static ImageIcon resize(ImageIcon source, int width, int height) {
+        Image img = source.getImage();
+        Image newImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(newImg);
     }
 
 }
