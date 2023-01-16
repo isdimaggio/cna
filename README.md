@@ -2,6 +2,8 @@
 ![Build](https://github.com/isdimaggio/cna/actions/workflows/maven.yml/badge.svg)  
 CNA, acronimo ricorsivo di (CNA's not AutoCAD) è un programma di CAD (Computer Assisted Drawing) realizzato in Java
 utilizzando il toolkit grafico AWT+Swing.
+  
+<img width="1287" alt="image" src="https://user-images.githubusercontent.com/58268988/212773303-c6803d3a-20f1-4160-ab20-21af71f467a1.png">
 
 Hanno partecipato al progetto:
 - Vittorio Lo Mele (4Ai)
