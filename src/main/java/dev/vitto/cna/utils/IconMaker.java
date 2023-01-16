@@ -61,4 +61,13 @@ public class IconMaker {
         return new Color(255 - color.getRed(), 255 - color.getGreen(), 255 - color.getBlue());
     }
 
+    public static String colorToHEXCode(Color color) {
+        return String.format(
+                "#%02X%02X%02X",
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue()
+        );
+    }
+
 }

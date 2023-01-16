@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
 public class OptionsMenu {
 
     public static JMenu get(char meta_mask) {
-        JMenu menu = new JMenu("Opzioni (S)");
+        JMenu menu = new JMenu("Opzioni Progetto (S)");
         JMenuItem menuItem;
         menu.setMnemonic(KeyEvent.VK_S);
         menu.getAccessibleContext().setAccessibleDescription("Opzioni del CAD");
@@ -44,7 +44,7 @@ public class OptionsMenu {
 
         menu.addSeparator();
 
-        menuItem = new JMenuItem("Impostazioni progetto", IconLoader.SETTINGS_ICON);
+        menuItem = new JMenuItem("Rinomina progetto", IconLoader.SETTINGS_ICON);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, meta_mask));
         menuItem.getAccessibleContext().setAccessibleDescription("Impostazioni del progetto");
         menu.add(menuItem);

@@ -351,4 +351,26 @@ public class IconLoader {
         }
 
     }
+
+    public static ImageIcon getStrokeIcon(int index) {
+        if (index < 0 || index > 4) return new ImageIcon();
+        switch (index) {
+            case 0 -> {
+                return STROKE_1;
+            }
+            case 1 -> {
+                return STROKE_2;
+            }
+            case 2 -> {
+                return STROKE_3;
+            }
+            case 3 -> {
+                return STROKE_4;
+            }
+            case 4 -> {
+                return STROKE_5;
+            }
+        }
+        return new ImageIcon();
+    }
 }

@@ -106,37 +106,37 @@ public class DrawToolBar {
         jMenu.getAccessibleContext().setAccessibleDescription("Strumenti di disegno");
 
         menuItem = new JMenuItem("Punto", IconResize.resize(IconLoader.POINT_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un punto");
         menuItem.addActionListener(e -> setActiveInstrument(1, true));
         jMenu.add(menuItem);
 
         menuItem = new JMenuItem("Linea", IconResize.resize(IconLoader.LINE_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna una linea");
         menuItem.addActionListener(e -> setActiveInstrument(2, true));
         jMenu.add(menuItem);
 
         menuItem = new JMenuItem("Rettangolo", IconResize.resize(IconLoader.RECT_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un rettangolo");
         menuItem.addActionListener(e -> setActiveInstrument(3, true));
         jMenu.add(menuItem);
 
         menuItem = new JMenuItem("Cerchio Centro-Raggio", IconResize.resize(IconLoader.CENTER_RAD_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un cerchio definendo prima il centro e poi il raggio");
         menuItem.addActionListener(e -> setActiveInstrument(4, true));
         jMenu.add(menuItem);
 
         menuItem = new JMenuItem("Ellisse", IconResize.resize(IconLoader.ELLIPSE_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un cerchio definendo prima il centro e poi il raggio");
         menuItem.addActionListener(e -> setActiveInstrument(5, true));
         jMenu.add(menuItem);
 
         menuItem = new JMenuItem("Testo Single-Line", IconResize.resize(IconLoader.TEXT_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, meta_mask + KeyEvent.ALT_DOWN_MASK));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un cerchio definendo prima il centro e poi il raggio");
         menuItem.addActionListener(e -> setActiveInstrument(6, true));
         jMenu.add(menuItem);
@@ -144,7 +144,7 @@ public class DrawToolBar {
         jMenu.addSeparator();
 
         menuItem = new JMenuItem("Nessuno Strumento", IconResize.resize(IconLoader.HAND_CMD, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, meta_mask));
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disattiva strumenti");
         menuItem.addActionListener(e -> setActiveInstrument(0, true));
         jMenu.add(menuItem);
@@ -167,6 +167,9 @@ public class DrawToolBar {
     }
 
     public void setActiveInstrument(int instrumentNumber, boolean fireUpdate) {
+        if (instrumentNumber < 0 || instrumentNumber > 6) {
+            return;
+        }
         clear();
         switch (instrumentNumber) {
             case 0 -> noCommandButton.setBorder(selectedBorder);

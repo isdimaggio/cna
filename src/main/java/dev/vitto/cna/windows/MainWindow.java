@@ -28,12 +28,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 public class MainWindow extends JFrame {
 
     JMenuItem debug = new JMenu("X: 0 | Y: 0");
     DrawToolBar drawToolBar;
     ColorStrokeToolBar colorStrokeToolBar;
+    JMenu viewToolBar;
+    JScrollPane listScroller;
+    JPanel propertyScroller;
+    JSplitPane pannelloLaterale;
+    JSplitPane pannelloPadre;
 
     public MainWindow(boolean isMacOS, Project project) {
 
@@ -59,12 +65,13 @@ public class MainWindow extends JFrame {
 
         drawToolBar = new DrawToolBar(project, META_CTRL_MASK);
         colorStrokeToolBar = new ColorStrokeToolBar(project);
+        viewToolBar = new ViewMenu(project);
 
         // aggiungi tutti i menu nella barra superiore
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(FileMenu.get(META_CTRL_MASK));
         menuBar.add(EditMenu.get(META_CTRL_MASK));
-        menuBar.add(ViewMenu.get());
+        menuBar.add(viewToolBar);
         menuBar.add(drawToolBar.getJMenu());
         menuBar.add(colorStrokeToolBar.getJMenu());
         menuBar.add(OptionsMenu.get(META_CTRL_MASK));
@@ -88,20 +95,20 @@ public class MainWindow extends JFrame {
         list.setLayoutOrientation(JList.VERTICAL);
         list.setVisibleRowCount(-1);
 
-        JScrollPane listScroller = new JScrollPane(list);
+        listScroller = new JScrollPane(list);
         listScroller.setPreferredSize(new Dimension(250, 80));
         listScroller.setBorder(BorderFactory.createTitledBorder("Lista oggetti"));
 
-        JPanel propertyScroller = new JPanel();
+        propertyScroller = new JPanel();
         propertyScroller.setBorder(BorderFactory.createTitledBorder("Proprietà oggetto selezionato"));
 
-        JSplitPane pannelloLaterale = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listScroller, propertyScroller);
+        pannelloLaterale = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listScroller, propertyScroller);
         pannelloLaterale.setResizeWeight(1);
         pannelloLaterale.setDividerLocation(300);
 
         CNACanvas cnaCanvas = new CNACanvas(debug);
 
-        JSplitPane pannelloPadre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pannelloLaterale, cnaCanvas);
+        pannelloPadre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pannelloLaterale, cnaCanvas);
         pannelloPadre.setResizeWeight(1);
         pannelloPadre.setDividerLocation(300);
         add(pannelloPadre, BorderLayout.CENTER);
@@ -118,12 +125,62 @@ public class MainWindow extends JFrame {
             if (Project.FILL_SHAPES_ACTIVE.equals(event.getPropertyName())) {
                 drawToolBar.setFillShapesActive((boolean) event.getNewValue(), false);
             }
+            if (Project.STROKES_LIST.equals(event.getPropertyName())) {
+                colorStrokeToolBar.setNewStrokesList((List<Integer>) event.getNewValue());
+            }
+            if (Project.COLORS_LIST.equals(event.getPropertyName())) {
+                colorStrokeToolBar.setNewColorsList((List<Color>) event.getNewValue());
+            }
+            if (Project.ACTIVE_STROKE.equals(event.getPropertyName())) {
+                colorStrokeToolBar.setActiveStroke((Integer) event.getNewValue(), false);
+            }
+            if (Project.ACTIVE_COLOR.equals(event.getPropertyName())) {
+                colorStrokeToolBar.setActiveColor((Integer) event.getNewValue(), false);
+            }
+            if (Project.DRAW_TOOLBAR_VISIBILITY.equals(event.getPropertyName())) {
+                drawToolBar.getJToolBar().setVisible((boolean) event.getNewValue());
+            }
+            if (Project.CS_TOOLBAR_VISIBILITY.equals(event.getPropertyName())) {
+                colorStrokeToolBar.getJToolBar().setVisible((boolean) event.getNewValue());
+            }
+            if (Project.OBJECTLIST_SIDEBAR_VISIBILITY.equals(event.getPropertyName())) {
+                listScroller.setVisible((boolean) event.getNewValue());
+                updateSidebarBoundaries();
+            }
+            if (Project.OBJECTPROPERTIES_SIDEBAR_VISIBILITY.equals(event.getPropertyName())) {
+                propertyScroller.setVisible((boolean) event.getNewValue());
+                updateSidebarBoundaries();
+            }
         });
 
         //repaint della finestra
         validate();
         repaint();
 
+    }
+
+    void updateSidebarBoundaries() {
+        // controlla se solo uno dei due pannelli è visibile
+        if (listScroller.isVisible() ^ propertyScroller.isVisible()) {
+            pannelloLaterale.setVisible(true);
+            pannelloPadre.setDividerLocation(pannelloPadre.getWidth() / 5);
+            if (listScroller.isVisible()) {
+                // imposta divider alla fine per dare tutto lo spazio al pannello superiore
+                pannelloLaterale.setDividerLocation(pannelloLaterale.getHeight() - 1);
+            } else {
+                // imposta divider all'inizio
+                pannelloLaterale.setDividerLocation(1);
+            }
+        } else if (listScroller.isVisible() && propertyScroller.isVisible()) {
+            pannelloLaterale.setVisible(true);
+            pannelloPadre.setDividerLocation(pannelloPadre.getWidth() / 5);
+            // imposta divisione a metà
+            pannelloLaterale.setDividerLocation((pannelloLaterale.getHeight() / 2) + 1);
+        } else {
+            // nessuno dei due visibili, nascondi tutto
+            pannelloLaterale.setVisible(false);
+            pannelloPadre.setDividerLocation(0);
+        }
     }
 
 }

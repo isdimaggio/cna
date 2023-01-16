@@ -19,27 +19,41 @@ limitations under the License.
 
 package dev.vitto.cna.components;
 
+import dev.vitto.cna.Project;
+
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-public class ViewMenu {
+public class ViewMenu extends JMenu {
 
-    public static JMenu get() {
-        JMenu menu = new JMenu("Visualizza (V)");
-        JCheckBoxMenuItem menuItem;
-        menu.setMnemonic(KeyEvent.VK_V);
-        menu.getAccessibleContext().setAccessibleDescription("Gestione dell'interfaccia");
+    Project project;
 
-        menuItem = new JCheckBoxMenuItem("Toolbar Disegno");
-        menuItem.setSelected(true);
-        menu.add(menuItem);
+    public ViewMenu(Project project) {
+        super("Visualizza (V)");
 
-        menuItem = new JCheckBoxMenuItem("Toolbar Colori e Tratto");
-        menuItem.setSelected(true);
-        menu.add(menuItem);
+        this.project = project;
+        setMnemonic(KeyEvent.VK_V);
+        getAccessibleContext().setAccessibleDescription("Gestione dell'interfaccia");
 
+        JMenuItem drawToolbarMenuItem = new JCheckBoxMenuItem("Toolbar Disegno");
+        drawToolbarMenuItem.setSelected(true);
+        drawToolbarMenuItem.addActionListener(e -> project.setDrawToolbarVisibility(drawToolbarMenuItem.isSelected()));
+        add(drawToolbarMenuItem);
 
-        return menu;
+        JMenuItem csToolbarMenuItem = new JCheckBoxMenuItem("Toolbar Colori e Tratto");
+        csToolbarMenuItem.setSelected(true);
+        csToolbarMenuItem.addActionListener(e -> project.setCsToolbarVisibility(csToolbarMenuItem.isSelected()));
+        add(csToolbarMenuItem);
+
+        JMenuItem objectListSidebar = new JCheckBoxMenuItem("Lista Oggetti");
+        objectListSidebar.setSelected(true);
+        objectListSidebar.addActionListener(e -> project.setObjectListSidebarVisibility(objectListSidebar.isSelected()));
+        add(objectListSidebar);
+
+        JMenuItem propertiesSidebar = new JCheckBoxMenuItem("Proprietà oggetto selezionato");
+        propertiesSidebar.setSelected(true);
+        propertiesSidebar.addActionListener(e -> project.setObjectPropertiesSidebarVisibility(propertiesSidebar.isSelected()));
+        add(propertiesSidebar);
     }
 
 }

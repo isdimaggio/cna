@@ -28,24 +28,18 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 public class ColorStrokeToolBar {
 
     Project project;
     JToolBar toolBar;
-    JButton stroke1 = new JButton();
-    JButton stroke2 = new JButton();
-    JButton stroke3 = new JButton();
-    JButton stroke4 = new JButton();
-    JButton stroke5 = new JButton();
-    JButton color1 = new JButton();
-    JButton color2 = new JButton();
-    JButton color3 = new JButton();
-    JButton color4 = new JButton();
-    JButton color5 = new JButton();
-    JButton color6 = new JButton();
-    JButton color7 = new JButton();
-    JButton color8 = new JButton();
+
+    JButton[] strokeButtons = new JButton[5];
+    JButton[] colorButtons = new JButton[8];
+
+    JMenuItem[] strokeMenuItems = new JMenuItem[5];
+    JMenuItem[] colorMenuItems = new JMenuItem[8];
 
     JMenu jMenu = new JMenu("Colori e Tratto (C)");
 
@@ -58,178 +52,67 @@ public class ColorStrokeToolBar {
         toolBar = new JToolBar("Disegna");
         this.project = project;
 
-        stroke1.setToolTipText("SLOT SPESSORE 1");
-        stroke1.setIcon(IconLoader.STROKE_1);
-        //stroke1.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(stroke1);
-
-        defaultBorder = stroke1.getBorder();
-        stroke1.setBorder(selectedBorder);
-
-        stroke2.setToolTipText("SLOT SPESSORE 2");
-        stroke2.setIcon(IconLoader.STROKE_2);
-        //stroke2.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(stroke2);
-
-        stroke3.setToolTipText("SLOT SPESSORE 3");
-        stroke3.setIcon(IconLoader.STROKE_3);
-        //stroke3.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(stroke3);
-
-        stroke4.setToolTipText("SLOT SPESSORE 4");
-        stroke4.setIcon(IconLoader.STROKE_4);
-        //stroke4.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(stroke4);
-
-        stroke5.setToolTipText("SLOT SPESSORE 5");
-        stroke5.setIcon(IconLoader.STROKE_5);
-        //stroke5.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(stroke5);
+        for (int i = 0; i < 5; i++) {
+            strokeButtons[i] = new JButton();
+            strokeButtons[i].setToolTipText("SLOT " + (i + 1) + ": " + project.getStrokesList().get(i) + "px");
+            strokeButtons[i].setIcon(IconLoader.getStrokeIcon(i));
+            int finalI = i;
+            strokeButtons[i].addActionListener(e -> setActiveStroke(finalI, true));
+            toolBar.add(strokeButtons[i]);
+            if (i == 0) {
+                defaultBorder = strokeButtons[i].getBorder();
+                strokeButtons[i].setBorder(selectedBorder);
+            }
+        }
 
         toolBar.addSeparator();
 
-        color1.setToolTipText("SLOT COLORE 1");
-        color1.setIcon(IconMaker.colorIcon32(1, Color.red));
-        //color1.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color1);
-
-        color1.setBorder(selectedBorder);
-
-        color2.setToolTipText("SLOT COLORE 2");
-        color2.setIcon(IconMaker.colorIcon32(2, Color.green));
-        //color2.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color2);
-
-        color3.setToolTipText("SLOT COLORE 3");
-        color3.setIcon(IconMaker.colorIcon32(3, Color.blue));
-        //color3.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color3);
-
-        color4.setToolTipText("SLOT COLORE 4");
-        color4.setIcon(IconMaker.colorIcon32(4, Color.cyan));
-        //color4.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color4);
-
-        color5.setToolTipText("SLOT COLORE 5");
-        color5.setIcon(IconMaker.colorIcon32(5, Color.yellow));
-        //color5.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color5);
-
-        color6.setToolTipText("SLOT COLORE 6");
-        color6.setIcon(IconMaker.colorIcon32(6, Color.magenta));
-        //color6.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color6);
-
-        color7.setToolTipText("SLOT COLORE 7");
-        color7.setIcon(IconMaker.colorIcon32(7, Color.black));
-        //color7.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color7);
-
-        color8.setToolTipText("SLOT COLORE 8");
-        color8.setIcon(IconMaker.colorIcon32(8, Color.white));
-        //color8.addActionListener(e -> setActiveInstrument(0, true));
-        toolBar.add(color8);
+        for (int i = 0; i < 8; i++) {
+            colorButtons[i] = new JButton();
+            colorButtons[i].setToolTipText(
+                    "SLOT " + (i + 1) + ": " + IconMaker.colorToHEXCode(
+                            project.getColorsList().get(i)
+                    ));
+            colorButtons[i].setIcon(IconMaker.colorIcon32(i + 1, project.getColorsList().get(i)));
+            int finalI = i;
+            colorButtons[i].addActionListener(e -> setActiveColor(finalI, true));
+            toolBar.add(colorButtons[i]);
+            if (i == 0) {
+                colorButtons[i].setBorder(selectedBorder);
+            }
+        }
 
         // menu contestuale
-        JMenuItem menuItem;
         jMenu.setMnemonic(KeyEvent.VK_C);
         jMenu.getAccessibleContext().setAccessibleDescription("Strumenti di disegno");
 
-        menuItem = new JMenuItem("Slot Spessore 1", IconResize.resize(IconLoader.STROKE_1, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Spessore 1");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Spessore 2", IconResize.resize(IconLoader.STROKE_2, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, KeyEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Spessore 2");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Spessore 3", IconResize.resize(IconLoader.STROKE_3, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, KeyEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Spessore 3");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Spessore 4", IconResize.resize(IconLoader.STROKE_4, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, KeyEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Spessore 4");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Spessore 5", IconResize.resize(IconLoader.STROKE_5, 16, 16));
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, KeyEvent.ALT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Spessore 5");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
+        for (int i = 0; i < 5; i++) {
+            strokeMenuItems[i] = new JMenuItem(
+                    "Slot spessore " + (i + 1) + ": " + project.getStrokesList().get(i) + "px",
+                    IconResize.resize(
+                            IconLoader.getStrokeIcon(i), 16, 16));
+            strokeMenuItems[i].setAccelerator(
+                    KeyStroke.getKeyStroke(49 + i, KeyEvent.ALT_DOWN_MASK)); //49 sarebbe '1'
+            strokeMenuItems[i].getAccessibleContext().setAccessibleDescription("Slot Spessore " + (i + 1));
+            int finalI = i;
+            strokeMenuItems[i].addActionListener(e -> project.setActiveStroke(finalI));
+            jMenu.add(strokeMenuItems[i]);
+        }
 
         jMenu.addSeparator();
 
-        menuItem = new JMenuItem("Slot Colore 1", IconResize.resize(
-                IconMaker.colorIcon32(1, Color.red), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 1");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 2", IconResize.resize(
-                IconMaker.colorIcon32(2, Color.green), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 2");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 3", IconResize.resize(
-                IconMaker.colorIcon32(3, Color.blue), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 3");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 4", IconResize.resize(
-                IconMaker.colorIcon32(4, Color.cyan), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 4");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 5", IconResize.resize(
-                IconMaker.colorIcon32(5, Color.yellow), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 5");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 6", IconResize.resize(
-                IconMaker.colorIcon32(6, Color.magenta), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 6");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 7", IconResize.resize(
-                IconMaker.colorIcon32(7, Color.black), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 7");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Slot Colore 8", IconResize.resize(
-                IconMaker.colorIcon32(8, Color.white), 16, 16)
-        );
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Slot Colore 8");
-        //menuItem.addActionListener(e -> setActiveInstrument(1, true));
-        jMenu.add(menuItem);
+        for (int i = 0; i < 8; i++) {
+            colorMenuItems[i] = new JMenuItem(
+                    "Slot colore " + (i + 1) + ": " + IconMaker.colorToHEXCode(project.getColorsList().get(i)),
+                    IconResize.resize(
+                            IconMaker.colorIcon32(i + 1, project.getColorsList().get(i)), 16, 16));
+            colorMenuItems[i].setAccelerator(
+                    KeyStroke.getKeyStroke(49 + i, KeyEvent.SHIFT_DOWN_MASK)); //49 sarebbe '1'
+            colorMenuItems[i].getAccessibleContext().setAccessibleDescription("Slot Spessore " + (i + 1));
+            int finalI = i;
+            colorMenuItems[i].addActionListener(e -> project.setActiveColor(finalI));
+            jMenu.add(colorMenuItems[i]);
+        }
     }
 
     public JToolBar getJToolBar() {
@@ -238,6 +121,86 @@ public class ColorStrokeToolBar {
 
     public JMenu getJMenu() {
         return jMenu;
+    }
+
+    public void setNewStrokesList(List<Integer> strokesList) {
+        if (strokesList.size() > 5) {
+            return;
+        }
+        int i = 0;
+        for (int stroke : strokesList
+        ) {
+            // update toolbar
+            strokeButtons[i].setToolTipText("SLOT " + (i + 1) + ": " + stroke + "px");
+            strokeButtons[i].setIcon(IconLoader.getStrokeIcon(i));
+
+            // update jmenu
+            strokeMenuItems[i].setText(
+                    "Slot spessore " + (i + 1) + ": " + stroke);
+            strokeMenuItems[i].setIcon(
+                    IconResize.resize(IconLoader.getStrokeIcon(i), 16, 16));
+            i++;
+        }
+    }
+
+    public void setNewColorsList(List<Color> colorsList) {
+        if (colorsList.size() > 8) {
+            return;
+        }
+        int i = 0;
+        for (Color color : colorsList
+        ) {
+            // update toolbar
+            colorButtons[i].setToolTipText(
+                    "SLOT " + (i + 1) + ": " + IconMaker.colorToHEXCode(
+                            color
+                    ));
+            colorButtons[i].setIcon(IconMaker.colorIcon32(i + 1, color));
+
+            // update jmenu
+            strokeMenuItems[i].setText(
+                    "Slot colore " + (i + 1) + ": " + IconMaker.colorToHEXCode(color));
+            strokeMenuItems[i].setIcon(
+                    IconResize.resize(
+                            IconMaker.colorIcon32(i + 1, color), 16, 16));
+            i++;
+        }
+    }
+
+    private void clearActiveStrokes() {
+        for (JButton btn : strokeButtons
+        ) {
+            btn.setBorder(defaultBorder);
+        }
+    }
+
+    private void clearActiveColors() {
+        for (JButton btn : colorButtons
+        ) {
+            btn.setBorder(defaultBorder);
+        }
+    }
+
+    public void setActiveStroke(int activeStroke, boolean fireUpdate) {
+        if (activeStroke < 0 || activeStroke > 7) {
+            return;
+        }
+        clearActiveStrokes();
+        strokeButtons[activeStroke].setBorder(selectedBorder);
+        if (fireUpdate) {
+            project.setActiveStroke(activeStroke);
+        }
+    }
+
+    public void setActiveColor(int activeColor, boolean fireUpdate) {
+        if (activeColor < 0 || activeColor > 7) {
+            return;
+        }
+        clearActiveColors();
+        colorButtons[activeColor].setBorder(selectedBorder);
+        if (fireUpdate) {
+            project.setActiveColor(activeColor);
+        }
     }
 
 }
