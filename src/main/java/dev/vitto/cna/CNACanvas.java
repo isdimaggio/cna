@@ -31,6 +31,8 @@ public class CNACanvas extends JPanel {
 
     JMenuItem xyDisplay;
     BufferedImage bi = (BufferedImage) IconLoader.GRID_TEXTURE.getImage();
+
+    boolean gridVisible = true;
     final TexturePaint texture = new TexturePaint(
             bi, new Rectangle(8, 8));
 
@@ -56,9 +58,11 @@ public class CNACanvas extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         // sfondo STATICO area di lavoro
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setPaint(texture);
-        g2.fillRect(0, 0, getWidth(), getHeight());
+        if (gridVisible) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setPaint(texture);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
 
         // da qua disegno DINAMICO
         // ora codice temporaneo
@@ -79,6 +83,24 @@ public class CNACanvas extends JPanel {
         g.fillRect(430, 150, 20, 20);
         g.setColor(Color.PINK);                                 //testo cyan
         g.drawString("Automobile", 200, 350);
+    }
+
+    public boolean isGridVisible() {
+        return gridVisible;
+    }
+
+    public void setGridVisible(boolean gridVisible) {
+        this.gridVisible = gridVisible;
+        repaint();
+    }
+
+    public BufferedImage exportToImage() {
+        setGridVisible(true);
+        BufferedImage bi = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.createGraphics();
+        this.paint(g);
+        g.dispose();
+        return bi;
     }
 
 }

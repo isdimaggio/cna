@@ -136,7 +136,7 @@ public class ColorStrokeToolBar {
 
             // update jmenu
             strokeMenuItems[i].setText(
-                    "Slot spessore " + (i + 1) + ": " + stroke);
+                    "Slot spessore " + (i + 1) + ": " + stroke + "px");
             strokeMenuItems[i].setIcon(
                     IconResize.resize(IconLoader.getStrokeIcon(i), 16, 16));
             i++;
@@ -158,9 +158,9 @@ public class ColorStrokeToolBar {
             colorButtons[i].setIcon(IconMaker.colorIcon32(i + 1, color));
 
             // update jmenu
-            strokeMenuItems[i].setText(
+            colorMenuItems[i].setText(
                     "Slot colore " + (i + 1) + ": " + IconMaker.colorToHEXCode(color));
-            strokeMenuItems[i].setIcon(
+            colorMenuItems[i].setIcon(
                     IconResize.resize(
                             IconMaker.colorIcon32(i + 1, color), 16, 16));
             i++;

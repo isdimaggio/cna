@@ -42,6 +42,7 @@ public class DrawToolBar {
     JButton textButton = new JButton();
 
     JButton fillButton = new JButton();
+    JButton canvasGridVisibilityButton = new JButton();
 
     Border defaultBorder;
     Border selectedBorder = BorderFactory.createLineBorder(Color.GREEN, 3);
@@ -96,9 +97,16 @@ public class DrawToolBar {
         toolBar.addSeparator();
 
         fillButton.setToolTipText("Attiva riempimento");
-        fillButton.setIcon(IconLoader.FILL_ON_CMD);
+        fillButton.setIcon(IconLoader.FILL_OFF_CMD);
         fillButton.addActionListener(e -> setFillShapesActive(!project.isFillShapesActive(), true));
         toolBar.add(fillButton);
+
+        toolBar.addSeparator();
+
+        canvasGridVisibilityButton.setToolTipText("Disattiva griglia");
+        canvasGridVisibilityButton.setIcon(IconLoader.GRID_ON_CMD);
+        canvasGridVisibilityButton.addActionListener(e -> setCanvasGridVisibility(!project.isCanvasGridVisibility(), true));
+        toolBar.add(canvasGridVisibilityButton);
 
         // menu contestuale
         JMenuItem menuItem;
@@ -189,16 +197,30 @@ public class DrawToolBar {
 
         if (status) {
             fillButton.setToolTipText("Disattiva riempimento");
-            fillButton.setIcon(IconLoader.FILL_OFF_CMD);
+            fillButton.setIcon(IconLoader.FILL_ON_CMD);
             fillMenuItem.setSelected(true);
         } else {
             fillButton.setToolTipText("Attiva riempimento");
-            fillButton.setIcon(IconLoader.FILL_ON_CMD);
+            fillButton.setIcon(IconLoader.FILL_OFF_CMD);
             fillMenuItem.setSelected(false);
         }
 
         if (fireUpdate) {
             project.setFillShapesActive(status);
+        }
+    }
+
+    public void setCanvasGridVisibility(boolean status, boolean fireUpdate) {
+        if (status) {
+            canvasGridVisibilityButton.setToolTipText("Disattiva griglia");
+            canvasGridVisibilityButton.setIcon(IconLoader.GRID_ON_CMD);
+        } else {
+            canvasGridVisibilityButton.setToolTipText("Attiva griglia");
+            canvasGridVisibilityButton.setIcon(IconLoader.GRID_OFF_CMD);
+        }
+
+        if (fireUpdate) {
+            project.setCanvasGridVisibility(status);
         }
     }
 

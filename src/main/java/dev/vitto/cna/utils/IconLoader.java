@@ -155,6 +155,9 @@ public class IconLoader {
         }
     }
 
+    public static ImageIcon EXPORT_ICON;
+    public static ImageIcon GRID_OFF_CMD;
+
     public static ImageIcon INFO_ICON;
 
     static {
@@ -176,14 +179,7 @@ public class IconLoader {
     }
 
     public static ImageIcon PROGRAM_ICON;
-
-    static {
-        try {
-            PROGRAM_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/program-icon.png")));
-        } catch (Exception e) {
-            PROGRAM_ICON = new ImageIcon();
-        }
-    }
+    public static ImageIcon GRID_ON_CMD;
 
     public static ImageIcon GRID_TEXTURE;
     public static ImageIcon DELETE_ICON;
@@ -192,6 +188,23 @@ public class IconLoader {
     public static ImageIcon ELLIPSE_CMD;
     public static ImageIcon FILL_OFF_CMD;
     public static ImageIcon FILL_ON_CMD;
+
+    static {
+        try {
+            EXPORT_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/export-icon.png")));
+        } catch (Exception e) {
+            EXPORT_ICON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            PROGRAM_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/program.png")));
+        } catch (Exception e) {
+            PROGRAM_ICON = new ImageIcon();
+        }
+    }
+
     public static ImageIcon HAND_CMD;
     public static ImageIcon LINE_CMD;
     public static ImageIcon POINT_CMD;
@@ -256,6 +269,22 @@ public class IconLoader {
             FILL_ON_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/fill-on.bmp")));
         } catch (Exception e) {
             FILL_ON_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            GRID_OFF_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/grid-off.bmp")));
+        } catch (Exception e) {
+            GRID_OFF_CMD = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            GRID_ON_CMD = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/grid-on.bmp")));
+        } catch (Exception e) {
+            GRID_ON_CMD = new ImageIcon();
         }
     }
 

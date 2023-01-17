@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 public class ViewMenu extends JMenu {
 
     Project project;
+    JMenuItem canvasGridMenuItem;
 
     public ViewMenu(Project project) {
         super("Visualizza (V)");
@@ -54,6 +55,18 @@ public class ViewMenu extends JMenu {
         propertiesSidebar.setSelected(true);
         propertiesSidebar.addActionListener(e -> project.setObjectPropertiesSidebarVisibility(propertiesSidebar.isSelected()));
         add(propertiesSidebar);
+
+        canvasGridMenuItem = new JCheckBoxMenuItem("Griglia canvas");
+        canvasGridMenuItem.setSelected(true);
+        canvasGridMenuItem.addActionListener(e -> setCanvasGridVisibility(canvasGridMenuItem.isSelected(), true));
+        add(canvasGridMenuItem);
+    }
+
+    public void setCanvasGridVisibility(boolean status, boolean fireUpdate) {
+        canvasGridMenuItem.setSelected(status);
+        if (fireUpdate) {
+            project.setCanvasGridVisibility(status);
+        }
     }
 
 }

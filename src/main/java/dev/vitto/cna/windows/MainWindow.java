@@ -27,6 +27,7 @@ import dev.vitto.cna.utils.IconLoader;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
@@ -35,11 +36,14 @@ public class MainWindow extends JFrame {
     JMenuItem debug = new JMenu("X: 0 | Y: 0");
     DrawToolBar drawToolBar;
     ColorStrokeToolBar colorStrokeToolBar;
-    JMenu viewToolBar;
+    ViewMenu viewMenu;
+    JMenu optionsMenu;
+    JMenu fileMenu;
     JScrollPane listScroller;
     JPanel propertyScroller;
     JSplitPane pannelloLaterale;
     JSplitPane pannelloPadre;
+    CNACanvas cnaCanvas;
 
     public MainWindow(boolean isMacOS, Project project) {
 
@@ -59,22 +63,23 @@ public class MainWindow extends JFrame {
         setLocation(200, 200);
         setIconImage(IconLoader.PROGRAM_ICON.getImage());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setDefaultLookAndFeelDecorated(true);
         setResizable(true);
         setVisible(true);
 
         drawToolBar = new DrawToolBar(project, META_CTRL_MASK);
         colorStrokeToolBar = new ColorStrokeToolBar(project);
-        viewToolBar = new ViewMenu(project);
+        viewMenu = new ViewMenu(project);
+        optionsMenu = new OptionsMenu(project, META_CTRL_MASK, this);
+        fileMenu = new FileMenu(project, META_CTRL_MASK, this);
 
         // aggiungi tutti i menu nella barra superiore
         JMenuBar menuBar = new JMenuBar();
-        menuBar.add(FileMenu.get(META_CTRL_MASK));
+        menuBar.add(fileMenu);
         menuBar.add(EditMenu.get(META_CTRL_MASK));
-        menuBar.add(viewToolBar);
+        menuBar.add(viewMenu);
         menuBar.add(drawToolBar.getJMenu());
         menuBar.add(colorStrokeToolBar.getJMenu());
-        menuBar.add(OptionsMenu.get(META_CTRL_MASK));
+        menuBar.add(optionsMenu);
         menuBar.add(Box.createHorizontalGlue());
         menuBar.add(debug);
         setJMenuBar(menuBar);
@@ -106,7 +111,7 @@ public class MainWindow extends JFrame {
         pannelloLaterale.setResizeWeight(1);
         pannelloLaterale.setDividerLocation(300);
 
-        CNACanvas cnaCanvas = new CNACanvas(debug);
+        cnaCanvas = new CNACanvas(debug);
 
         pannelloPadre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pannelloLaterale, cnaCanvas);
         pannelloPadre.setResizeWeight(1);
@@ -151,6 +156,11 @@ public class MainWindow extends JFrame {
                 propertyScroller.setVisible((boolean) event.getNewValue());
                 updateSidebarBoundaries();
             }
+            if (Project.CANVAS_GRID_VISIBILITY.equals(event.getPropertyName())) {
+                cnaCanvas.setGridVisible((boolean) event.getNewValue());
+                drawToolBar.setCanvasGridVisibility((boolean) event.getNewValue(), false);
+                viewMenu.setCanvasGridVisibility((boolean) event.getNewValue(), false);
+            }
         });
 
         //repaint della finestra
@@ -172,6 +182,7 @@ public class MainWindow extends JFrame {
                 pannelloLaterale.setDividerLocation(1);
             }
         } else if (listScroller.isVisible() && propertyScroller.isVisible()) {
+            // sono tutti e due visibili
             pannelloLaterale.setVisible(true);
             pannelloPadre.setDividerLocation(pannelloPadre.getWidth() / 5);
             // imposta divisione a metà
@@ -181,6 +192,10 @@ public class MainWindow extends JFrame {
             pannelloLaterale.setVisible(false);
             pannelloPadre.setDividerLocation(0);
         }
+    }
+
+    public BufferedImage exportCanvasToImage() {
+        return cnaCanvas.exportToImage();
     }
 
 }

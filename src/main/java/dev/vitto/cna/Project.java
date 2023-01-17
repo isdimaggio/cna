@@ -37,6 +37,7 @@ public class Project {
     public static final String CS_TOOLBAR_VISIBILITY = "csToolbarVisibility";
     public static final String OBJECTLIST_SIDEBAR_VISIBILITY = "objectListSidebarVisibility";
     public static final String OBJECTPROPERTIES_SIDEBAR_VISIBILITY = "objectPropertiesSidebarVisibility";
+    public static final String CANVAS_GRID_VISIBILITY = "canvasGridVisibility";
     public static final String DEFAULT_PROJECT_NAME = "Progetto senza titolo";
     private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
 
@@ -57,6 +58,8 @@ public class Project {
 
     private boolean objectListSidebarVisibility = true;
     private boolean objectPropertiesSidebarVisibility = true;
+
+    private boolean canvasGridVisibility = true;
 
     // ********************************* //
 
@@ -136,7 +139,7 @@ public class Project {
     }
 
     public void setStrokesList(List<Integer> strokesList) {
-        List<Integer> oldStrokesList = this.strokesList;
+        List<Integer> oldStrokesList = new ArrayList<>(strokesList);
         if (strokesList.size() != 5) {
             return;
         }
@@ -149,7 +152,7 @@ public class Project {
     }
 
     public void setStrokesList(int stroke, int index) {
-        List<Integer> oldStrokesList = this.strokesList;
+        List<Integer> oldStrokesList = new ArrayList<>(strokesList);
         if (index < 0 || index > 4) {
             return;
         }
@@ -165,7 +168,7 @@ public class Project {
     }
 
     public void setColorsList(List<Color> colorsList) {
-        List<Color> oldColorsList = this.colorsList;
+        List<Color> oldColorsList = new ArrayList<>(colorsList);
         if (colorsList.size() != 8) {
             return;
         }
@@ -174,7 +177,7 @@ public class Project {
     }
 
     public void setColorsList(Color color, int index) {
-        List<Color> oldColorsList = this.colorsList;
+        List<Color> oldColorsList = new ArrayList<>(colorsList);
         if (index < 0 || index > 7) {
             return;
         }
@@ -243,5 +246,15 @@ public class Project {
         this.objectPropertiesSidebarVisibility = objectPropertiesSidebarVisibility;
         mPcs.firePropertyChange(
                 OBJECTPROPERTIES_SIDEBAR_VISIBILITY, !objectPropertiesSidebarVisibility, objectPropertiesSidebarVisibility);
+    }
+
+    public boolean isCanvasGridVisibility() {
+        return canvasGridVisibility;
+    }
+
+    public void setCanvasGridVisibility(boolean canvasGridVisibility) {
+        this.canvasGridVisibility = canvasGridVisibility;
+        mPcs.firePropertyChange(
+                CANVAS_GRID_VISIBILITY, !canvasGridVisibility, canvasGridVisibility);
     }
 }

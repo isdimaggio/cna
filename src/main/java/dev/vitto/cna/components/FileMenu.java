@@ -19,51 +19,117 @@ limitations under the License.
 
 package dev.vitto.cna.components;
 
+import dev.vitto.cna.Project;
 import dev.vitto.cna.utils.IconLoader;
+import dev.vitto.cna.utils.Misc;
+import dev.vitto.cna.windows.MainWindow;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.awt.print.Printable;
+import java.awt.print.PrinterJob;
+import java.io.File;
 
-public class FileMenu {
+public class FileMenu extends JMenu {
 
+    Project project;
+    MainWindow parent;
+    char meta_mask;
 
-    public static JMenu get(char meta_mask) {
-        JMenu menu = new JMenu("File (F)");
-        JMenuItem menuItem;
-        menu.setMnemonic(KeyEvent.VK_F);
-        menu.getAccessibleContext().setAccessibleDescription("Menù per la gestione dei progetti");
+    public FileMenu(Project project, char meta_mask, MainWindow parent) {
+        super("File (F)");
 
-        menuItem = new JMenuItem("Nuovo disegno", IconLoader.NEW_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Crea un nuovo disegno");
-        menu.add(menuItem);
+        this.project = project;
+        this.parent = parent;
+        this.meta_mask = meta_mask;
 
-        menuItem = new JMenuItem("Apri disegno", IconLoader.OPEN_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Apri disegno precedentemente salvato");
-        menu.add(menuItem);
+        setMnemonic(KeyEvent.VK_F);
+        getAccessibleContext().setAccessibleDescription("Menù per la gestione dei progetti");
 
-        menu.addSeparator();
+        JMenuItem newDrawingMenuItem = new JMenuItem("Nuovo disegno", IconLoader.NEW_ICON);
+        newDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, meta_mask));
+        newDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Crea un nuovo disegno");
+        add(newDrawingMenuItem);
 
-        menuItem = new JMenuItem("Salva disegno", IconLoader.SAVE_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Salva il disegno correntemente caricato");
-        menu.add(menuItem);
+        JMenuItem openDrawingMenuItem = new JMenuItem("Apri disegno", IconLoader.OPEN_ICON);
+        openDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, meta_mask));
+        openDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Apri disegno precedentemente salvato");
+        add(openDrawingMenuItem);
 
-        menuItem = new JMenuItem("Salva disegno con nome", IconLoader.SAVE_AS_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask + InputEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Salva il disegno specificando il nome");
-        menu.add(menuItem);
+        addSeparator();
 
-        menu.addSeparator();
+        JMenuItem saveDrawingMenuItem = new JMenuItem("Salva disegno", IconLoader.SAVE_ICON);
+        saveDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask));
+        saveDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Salva il disegno correntemente caricato");
+        add(saveDrawingMenuItem);
 
-        menuItem = new JMenuItem("Stampa disegno", IconLoader.PRINT_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, meta_mask ));
-        menuItem.getAccessibleContext().setAccessibleDescription("Stampa il disegno");
-        menu.add(menuItem);
+        JMenuItem saveNameDrawingMenuItem = new JMenuItem("Salva disegno con nome", IconLoader.SAVE_AS_ICON);
+        saveNameDrawingMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask + InputEvent.SHIFT_DOWN_MASK));
+        saveNameDrawingMenuItem.getAccessibleContext().setAccessibleDescription(
+                "Salva il disegno specificando il nome");
+        add(saveNameDrawingMenuItem);
 
-        return menu;
+        addSeparator();
+
+        JMenuItem printDrawingMenuItem = new JMenuItem("Stampa disegno", IconLoader.PRINT_ICON);
+        printDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, meta_mask));
+        printDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Stampa il disegno");
+        printDrawingMenuItem.addActionListener(e -> {
+            PrinterJob printJob = PrinterJob.getPrinterJob();
+            printJob.setPrintable((graphics, pageFormat, pageIndex) -> {
+                if (pageIndex != 0) {
+                    return Printable.NO_SUCH_PAGE;
+                }
+                BufferedImage bi = parent.exportCanvasToImage();
+                graphics.drawImage(bi, 0, 0, bi.getWidth(), bi.getHeight(), null);
+                return Printable.PAGE_EXISTS;
+            });
+            try {
+                printJob.printDialog();
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(this,
+                        "Impossibile stampare il progetto: " + e1.getLocalizedMessage(),
+                        "Stampa progetto",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        add(printDrawingMenuItem);
+
+        JMenuItem exportDrawingMenuItem = new JMenuItem("Esporta disegno in PNG", IconLoader.EXPORT_ICON);
+        exportDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, meta_mask));
+        exportDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Esporta il disegno in PNG");
+        exportDrawingMenuItem.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Esportazione in PNG del progetto");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "Immagine .png", "png");
+            fileChooser.setFileFilter(filter);
+            fileChooser.setSelectedFile(new File(Misc.elaborateFileName(project.getProjectName()) + ".png"));
+
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                String fname = fileToSave.getAbsolutePath();
+                if (!fname.endsWith(".png")) {
+                    fileToSave = new File(fname + ".png");
+                }
+                try {
+                    ImageIO.write(parent.exportCanvasToImage(), "png", fileToSave);
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(this,
+                            "Impossibile esportare il progetto: " + e2.getLocalizedMessage(),
+                            "Esportazione progetto",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        add(exportDrawingMenuItem);
     }
 
 }

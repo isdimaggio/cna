@@ -22,6 +22,7 @@ package dev.vitto.cna;
 
 import dev.vitto.cna.windows.MainWindow;
 
+import javax.swing.*;
 import java.util.Locale;
 
 public class Main {
@@ -29,6 +30,12 @@ public class Main {
     public static Project currentProject;
 
     public static void main(String[] args) {
+
+        try {
+            UIManager.setLookAndFeel(
+                    UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (Exception ignored) {
+        }
 
         boolean isMacOS = false;
 
