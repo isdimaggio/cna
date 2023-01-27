@@ -46,6 +46,8 @@ public class Project implements java.io.Serializable {
     public static final String OBJECTLIST_SIDEBAR_VISIBILITY = "objectListSidebarVisibility";
     public static final String OBJECTPROPERTIES_SIDEBAR_VISIBILITY = "objectPropertiesSidebarVisibility";
     public static final String CANVAS_GRID_VISIBILITY = "canvasGridVisibility";
+    public static final String OBJECT_SNAPPING = "objectSnappingChanged";
+    public static final String OBJECT_BOUNDARIES = "objectBoundaresChanged";
     public static final String SHAPES_LIST = "shapesList";
     public static final String DEFAULT_PROJECT_NAME = "Progetto senza titolo";
 
@@ -57,6 +59,8 @@ public class Project implements java.io.Serializable {
         Cambio Proprietà --> Event Router (MainWindow) --> Dispatch eventi
      */
     private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
+    // dopo ogni property change (per gli elementi funzionali), viene anche effettuata una copia del progetto
+    private Project previousMe = null;
 
     // ********************************* //
 
@@ -74,9 +78,12 @@ public class Project implements java.io.Serializable {
     private boolean csToolbarVisibility = true; // visibilità della toolbar colore e spessore
 
     private boolean objectListSidebarVisibility = true; // visibilità della sezione lista oggetti nella barra laterale
-    private boolean objectPropertiesSidebarVisibility = true; // visibilità della sez. proprietà ""
+    private boolean objectPropertiesSidebarVisibility = true; // visibilità della sez. proprietà
 
     private boolean canvasGridVisibility = true; // visibilità della griglia nel canvas
+
+    private boolean objectSnappingEnabled = false; // se lo snapping alla griglia è attivato
+    private boolean objectBoundariesEnabled = false; // se la visualizzazione dei punti di boundaries è abilitata
 
     private List<Shape> shapesList = new ArrayList<>(); // lista di tutte le figure geometriche da renderizzare
 
@@ -87,6 +94,10 @@ public class Project implements java.io.Serializable {
 
     public Project() {
         loadDefaults();
+    }
+
+    public Project(Project p2) {
+        replaceSelf(p2);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -120,6 +131,7 @@ public class Project implements java.io.Serializable {
     }
 
     public void clearProject() {
+        previousMe = null;
         projectName = DEFAULT_PROJECT_NAME;
         activeInstrument = 0;
         fillShapesActive = false;
@@ -133,7 +145,37 @@ public class Project implements java.io.Serializable {
         objectPropertiesSidebarVisibility = true;
         canvasGridVisibility = true;
         shapesList = new ArrayList<>();
+        objectSnappingEnabled = false;
+        objectBoundariesEnabled = false;
         loadDefaults();
+        fireAllPropertyChanges();
+    }
+
+    // questa funzione è necessaria siccome rimpiazzare l'oggetto project significherebbe rompere
+    // tutti i listener registrati per l'applicazione
+    public void replaceSelf(Project newProject) {
+        previousMe = newProject.previousMe;
+        projectName = newProject.projectName;
+        activeInstrument = newProject.activeInstrument;
+        fillShapesActive = newProject.fillShapesActive;
+        strokesList = newProject.strokesList;
+        colorsList = newProject.colorsList;
+        activeStroke = newProject.activeStroke;
+        activeColor = newProject.activeColor;
+        drawToolbarVisibility = newProject.drawToolbarVisibility;
+        csToolbarVisibility = newProject.csToolbarVisibility;
+        objectListSidebarVisibility = newProject.objectListSidebarVisibility;
+        objectPropertiesSidebarVisibility = newProject.objectPropertiesSidebarVisibility;
+        canvasGridVisibility = newProject.canvasGridVisibility;
+        shapesList = newProject.shapesList;
+        textContentForInsert = newProject.textContentForInsert;
+        textHeightForInsert = newProject.textHeightForInsert;
+        objectBoundariesEnabled = newProject.objectBoundariesEnabled;
+        objectSnappingEnabled = newProject.objectSnappingEnabled;
+        fireAllPropertyChanges();
+    }
+
+    public void fireAllPropertyChanges() {
         mPcs.firePropertyChange(PROJECT_NAME, null, projectName);
         mPcs.firePropertyChange(ACTIVE_INSTRUMENT, null, activeInstrument);
         mPcs.firePropertyChange(FILL_SHAPES_ACTIVE, null, fillShapesActive);
@@ -147,6 +189,8 @@ public class Project implements java.io.Serializable {
         mPcs.firePropertyChange(OBJECTPROPERTIES_SIDEBAR_VISIBILITY, null, objectListSidebarVisibility);
         mPcs.firePropertyChange(CANVAS_GRID_VISIBILITY, null, canvasGridVisibility);
         mPcs.firePropertyChange(SHAPES_LIST, null, shapesList);
+        mPcs.firePropertyChange(OBJECT_SNAPPING, null, objectSnappingEnabled);
+        mPcs.firePropertyChange(OBJECT_BOUNDARIES, null, objectBoundariesEnabled);
     }
 
     // ********************************* //
@@ -161,6 +205,7 @@ public class Project implements java.io.Serializable {
             return;
         }
         String oldValue = this.projectName;
+        previousMe = new Project(this);
         this.projectName = projectName;
         mPcs.firePropertyChange(PROJECT_NAME, oldValue, projectName);
     }
@@ -171,7 +216,7 @@ public class Project implements java.io.Serializable {
 
     /*
       LISTA STRUMENTI
-      0 -> Nessun Comando
+      0 -> Nessun Comando (Manina)
       1 -> Punto
       2 -> Linea
       3 -> Rettangolo
@@ -209,6 +254,7 @@ public class Project implements java.io.Serializable {
         ) {
             if (stroke > 30) return;
         }
+        previousMe = new Project(this);
         this.strokesList = strokesList;
         mPcs.firePropertyChange(STROKES_LIST, oldStrokesList, strokesList);
     }
@@ -222,6 +268,7 @@ public class Project implements java.io.Serializable {
         if (stroke > 30) {
             return;
         }
+        previousMe = new Project(this);
         this.strokesList.set(index, stroke);
         mPcs.firePropertyChange(STROKES_LIST, oldStrokesList, strokesList);
     }
@@ -236,6 +283,7 @@ public class Project implements java.io.Serializable {
         if (colorsList.size() != 8) {
             return;
         }
+        previousMe = new Project(this);
         this.colorsList = colorsList;
         mPcs.firePropertyChange(COLORS_LIST, oldColorsList, colorsList);
     }
@@ -245,6 +293,7 @@ public class Project implements java.io.Serializable {
         if (index < 0 || index > 7) {
             return;
         }
+        previousMe = new Project(this);
         this.colorsList.set(index, color);
         mPcs.firePropertyChange(COLORS_LIST, oldColorsList, colorsList);
     }
@@ -328,6 +377,7 @@ public class Project implements java.io.Serializable {
 
     public void setShapesList(List<Shape> shapesList) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        previousMe = new Project(this);
         this.shapesList = shapesList;
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -335,12 +385,14 @@ public class Project implements java.io.Serializable {
 
     public void setShapesList(Shape shape, int index) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        previousMe = new Project(this);
         this.shapesList.set(index, shape);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
     }
 
     public void addShapeToShapesList(Shape shape) {
+        previousMe = new Project(this);
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
         this.shapesList.add(shape);
         mPcs.firePropertyChange(
@@ -349,6 +401,7 @@ public class Project implements java.io.Serializable {
 
     public void removeShapeFromShapesList(Shape shape) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        previousMe = new Project(this);
         this.shapesList.remove(shape);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -356,6 +409,7 @@ public class Project implements java.io.Serializable {
 
     public void removeShapeFromShapesList(int index) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        previousMe = new Project(this);
         this.shapesList.remove(index);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -384,5 +438,34 @@ public class Project implements java.io.Serializable {
         // non interessa il propertyChangeSupport essendo una proprietà inizializzata...
         // ...a ogni click del bottone "testo"
         this.textHeightForInsert = textHeightForInsert;
+    }
+
+    public boolean isObjectSnappingEnabled() {
+        return objectSnappingEnabled;
+    }
+
+    public void setObjectSnappingEnabled(boolean objectSnappingEnabled) {
+        this.objectSnappingEnabled = objectSnappingEnabled;
+        mPcs.firePropertyChange(
+                OBJECT_SNAPPING, !objectSnappingEnabled, objectSnappingEnabled
+        );
+    }
+
+    public boolean isObjectBoundariesEnabled() {
+        return objectBoundariesEnabled;
+    }
+
+    public void setObjectBoundariesEnabled(boolean objectBoundariesEnabled) {
+        this.objectBoundariesEnabled = objectBoundariesEnabled;
+        mPcs.firePropertyChange(
+                OBJECT_BOUNDARIES, !objectBoundariesEnabled, objectBoundariesEnabled
+        );
+    }
+
+    public void undo() {
+        if (previousMe == null)
+            return;
+
+        replaceSelf(previousMe);
     }
 }

@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainWindow extends JFrame {
@@ -52,11 +54,13 @@ public class MainWindow extends JFrame {
     Project project;
     DefaultListModel<Shape> listModel;
     JList<Shape> guiObjectList;
+    String currentFileName;
 
-    public MainWindow(boolean isMacOS, Project project) {
+    public MainWindow(boolean isMacOS, Project project, String currentFileName) {
 
-        super("CNA (CNA's Not AutoCAD) - " + project.getProjectName());
+        super("CNA (CNA's Not AutoCAD) - " + project.getProjectName() + " [" + currentFileName + " ]");
         this.project = project;
+        this.currentFileName = currentFileName;
 
         char shortcut_mask;
 
@@ -158,7 +162,7 @@ public class MainWindow extends JFrame {
         // listener per i cambi di variabile nel progetto
         project.addPropertyChangeListener((PropertyChangeEvent event) -> {
             if (Project.PROJECT_NAME.equals(event.getPropertyName())) {
-                setTitle("CNA (CNA's Not AutoCAD) - " + event.getNewValue());
+                setTitle("CNA (CNA's Not AutoCAD) - " + event.getNewValue() + " [" + currentFileName + "]");
             }
             if (Project.ACTIVE_INSTRUMENT.equals(event.getPropertyName())) {
                 drawToolBar.setActiveInstrument((Integer) event.getNewValue(), false);
@@ -209,6 +213,14 @@ public class MainWindow extends JFrame {
                 listModel.removeAllElements();
                 listModel.addAll(project.getShapesList());
             }
+            if (Project.OBJECT_SNAPPING.equals(event.getPropertyName())) {
+                drawToolBar.setObjectSnappingActive((boolean) event.getNewValue(), false);
+            }
+            if (Project.OBJECT_BOUNDARIES.equals(event.getPropertyName())) {
+                drawToolBar.setObjectBoundariesVisibility((boolean) event.getNewValue(), false);
+                viewMenu.setObjectBoundariesVisibility((boolean) event.getNewValue(), false);
+                cnaCanvas.repaint();
+            }
         });
 
         //repaint della finestra
@@ -255,14 +267,17 @@ public class MainWindow extends JFrame {
         return cnaCanvas.exportToImage();
     }
 
+    // crea una copia della lista su cui lavorare, altrimenti si sfalsano gli index eliminando elementi
     public void deleteSelectedObjects() {
-        for (int index : selectedIndexes
-        ) {
-            try {
-                project.removeShapeFromShapesList(index);
-            } catch (Exception ignored) {
+        List<Shape> newShapeList = new ArrayList<>();
+        for (int i = 0; i < project.getShapesList().size(); i++) {
+            int finalI = i;
+            if (Arrays.stream(selectedIndexes).noneMatch(j -> j == finalI)) {
+                newShapeList.add(project.getShapesList().get(i));
             }
         }
+        project.setShapesList(newShapeList);
+        project.fireShapeListPropChange();
     }
 
     public void renameObjects(int[] index) {
@@ -277,7 +292,15 @@ public class MainWindow extends JFrame {
 
         int i;
         if (index[0] == -1) {
-            i = selectedIndexes[0];
+            try {
+                i = selectedIndexes[0];
+            } catch (Exception ignored) {
+                JOptionPane.showMessageDialog(this,
+                        "Per favore, seleziona solo e solamente un'oggetto",
+                        "Rinomina oggetto",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } else {
             i = index[0];
         }
@@ -310,6 +333,15 @@ public class MainWindow extends JFrame {
         if (end >= 0) {
             guiObjectList.setSelectionInterval(0, end);
         }
+    }
+
+    public String getCurrentFileName() {
+        return currentFileName;
+    }
+
+    public void setCurrentFileName(String currentFileName) {
+        this.currentFileName = currentFileName;
+        setTitle("CNA (CNA's Not AutoCAD) - " + project.getProjectName() + " [" + currentFileName + "]");
     }
 
 }

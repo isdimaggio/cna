@@ -377,6 +377,43 @@ public class IconLoader {
         }
     }
 
+    public static ImageIcon OSNAP_ON;
+    public static ImageIcon OSNAP_OFF;
+    public static ImageIcon BOUNDARY_ON;
+    public static ImageIcon BOUNDARY_OFF;
+
+    static {
+        try {
+            OSNAP_ON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/osnap-on.bmp")));
+        } catch (Exception e) {
+            OSNAP_ON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            OSNAP_OFF = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/osnap-off.bmp")));
+        } catch (Exception e) {
+            OSNAP_OFF = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            BOUNDARY_ON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/boundary-on.bmp")));
+        } catch (Exception e) {
+            BOUNDARY_ON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            BOUNDARY_OFF = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/commands/boundary-off.bmp")));
+        } catch (Exception e) {
+            BOUNDARY_OFF = new ImageIcon();
+        }
+    }
+
     private static InputStream getFileFromResourceAsStream(String fileName) {
 
         ClassLoader classLoader = IconLoader.class.getClassLoader();

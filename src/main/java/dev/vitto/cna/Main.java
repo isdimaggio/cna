@@ -48,8 +48,9 @@ public class Main {
             isMacOS = true;
         }
 
+        // il currentFileName viene passato di default vuoto da questo costruttore per possibili sviluppi futuri
         currentProject = new Project();
-        new MainWindow(isMacOS, currentProject);
+        new MainWindow(isMacOS, currentProject, "");
 
     }
 }

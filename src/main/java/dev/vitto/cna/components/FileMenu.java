@@ -23,6 +23,7 @@ package dev.vitto.cna.components;
 import dev.vitto.cna.Project;
 import dev.vitto.cna.utils.IconLoader;
 import dev.vitto.cna.utils.Misc;
+import dev.vitto.cna.utils.ProjectLoader;
 import dev.vitto.cna.windows.MainWindow;
 
 import javax.imageio.ImageIO;
@@ -60,6 +61,25 @@ public class FileMenu extends JMenu {
         JMenuItem openDrawingMenuItem = new JMenuItem("Apri disegno", IconLoader.OPEN_ICON);
         openDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, meta_mask));
         openDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Apri disegno precedentemente salvato");
+        openDrawingMenuItem.addActionListener(e -> {
+            // apre il file chooser
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                // prova a deserializzare l'oggetto
+                try {
+                    project.replaceSelf(ProjectLoader.loadProject(selectedFile));
+                    parent.setCurrentFileName(selectedFile.getAbsolutePath());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Impossibile caricare il progetto: " + ex.getMessage(),
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
         add(openDrawingMenuItem);
 
         addSeparator();
@@ -67,6 +87,24 @@ public class FileMenu extends JMenu {
         JMenuItem saveDrawingMenuItem = new JMenuItem("Salva disegno", IconLoader.SAVE_ICON);
         saveDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask));
         saveDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Salva il disegno correntemente caricato");
+        saveDrawingMenuItem.addActionListener(e -> {
+            // controlla se il file esiste
+            File f = new File(parent.getCurrentFileName());
+            if (f.exists() && !f.isDirectory()) {
+                // sovrascrivi quello esistente
+                try {
+                    ProjectLoader.saveProject(project, f);
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(this,
+                            "Impossibile salvare il progetto: " + e2.getLocalizedMessage(),
+                            "Salvataggio progetto",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                // il file non esiste a prescindere, mostra il dialog
+                saveFileDialog();
+            }
+        });
         add(saveDrawingMenuItem);
 
         JMenuItem saveNameDrawingMenuItem = new JMenuItem("Salva disegno con nome", IconLoader.SAVE_AS_ICON);
@@ -74,6 +112,7 @@ public class FileMenu extends JMenu {
                 KeyStroke.getKeyStroke(KeyEvent.VK_S, meta_mask + InputEvent.SHIFT_DOWN_MASK));
         saveNameDrawingMenuItem.getAccessibleContext().setAccessibleDescription(
                 "Salva il disegno specificando il nome");
+        saveNameDrawingMenuItem.addActionListener(e -> saveFileDialog());
         add(saveNameDrawingMenuItem);
 
         addSeparator();
@@ -132,6 +171,34 @@ public class FileMenu extends JMenu {
             }
         });
         add(exportDrawingMenuItem);
+    }
+
+    private void saveFileDialog() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Salvataggio progetto");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Progetto CNA (.cna)", "cnaa");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setSelectedFile(new File(Misc.elaborateFileName(project.getProjectName()) + ".cna"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String fname = fileToSave.getAbsolutePath();
+            if (!fname.endsWith(".cna")) {
+                fileToSave = new File(fname + ".cna");
+            }
+            try {
+                ProjectLoader.saveProject(project, fileToSave);
+                parent.setCurrentFileName(fileToSave.getAbsolutePath());
+            } catch (Exception e2) {
+                JOptionPane.showMessageDialog(this,
+                        "Impossibile salvare il progetto: " + e2.getLocalizedMessage(),
+                        "Salvataggio progetto",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
 }

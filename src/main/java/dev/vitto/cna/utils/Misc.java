@@ -128,4 +128,20 @@ public class Misc {
         return false;
     }
 
+    // calcola il multiplo di 10 più vicino per ancorare tutti i punti disegnati alla griglia 10x10px
+    public static int objectSnapCalc(int coord, boolean round) {
+        if (round) {
+            // calcolo del multiplo più piccolo
+            int a = (coord / 10) * 10;
+
+            // calcolo del multiplo più grande
+            int b = a + 10;
+
+            // ritorna il più vicino dei due
+            return (coord - a > b - coord) ? b : a;
+        } else {
+            return coord;
+        }
+    }
+
 }

@@ -23,6 +23,7 @@ import dev.vitto.cna.objects.Rectangle;
 import dev.vitto.cna.objects.Shape;
 import dev.vitto.cna.objects.*;
 import dev.vitto.cna.utils.IconLoader;
+import dev.vitto.cna.utils.Misc;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,12 +55,14 @@ public class CNACanvas extends JPanel {
             public void mousePressed(MouseEvent e) {
                 switch (project.getActiveInstrument()) {
                     case 0 -> // strumento manina, aggiorna solo lo xyDisplay con le nuove coordinate
-                            xyDisplay.setText("X: " + e.getX() + " | Y: " + e.getY());
+                            xyDisplay.setText(
+                                    "X: " + Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()) +
+                                            " | Y: " + Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()));
                     case 1 -> {
                         // strumento punto
                         project.addShapeToShapesList(new Shape(
-                                e.getX(),
-                                e.getY(),
+                                Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                 project.getColorsList().get(
                                         project.getActiveColor()
                                 ),
@@ -72,7 +75,10 @@ public class CNACanvas extends JPanel {
                     case 2 -> {
                         // strumento linea
                         if (stageRegister == 0) {
-                            pointRegisterA = new Point(e.getX(), e.getY());
+                            pointRegisterA = new Point(
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
+                            );
                             stageRegister++;
                             xyDisplay.setText("[INSERT] Punto fine");
                             repaint();
@@ -80,8 +86,8 @@ public class CNACanvas extends JPanel {
                             project.addShapeToShapesList(new Line(
                                     (int) pointRegisterA.getX(),
                                     (int) pointRegisterA.getY(),
-                                    e.getX(),
-                                    e.getY(),
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                     project.getColorsList().get(
                                             project.getActiveColor()
                                     ),
@@ -96,7 +102,10 @@ public class CNACanvas extends JPanel {
                     case 3 -> {
                         // strumento rettangolo
                         if (stageRegister == 0) {
-                            pointRegisterA = new Point(e.getX(), e.getY());
+                            pointRegisterA = new Point(
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
+                            );
                             stageRegister++;
                             xyDisplay.setText("[INSERT] Punto fine");
                             repaint();
@@ -104,8 +113,8 @@ public class CNACanvas extends JPanel {
                             project.addShapeToShapesList(new Rectangle(
                                     (int) pointRegisterA.getX(),
                                     (int) pointRegisterA.getY(),
-                                    e.getX(),
-                                    e.getY(),
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                     project.getColorsList().get(
                                             project.getActiveColor()
                                     ),
@@ -121,7 +130,10 @@ public class CNACanvas extends JPanel {
                     case 4 -> {
                         // strumento cerchio
                         if (stageRegister == 0) {
-                            pointRegisterA = new Point(e.getX(), e.getY());
+                            pointRegisterA = new Point(
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
+                            );
                             stageRegister++;
                             xyDisplay.setText("[INSERT] Punto fine");
                             repaint();
@@ -129,8 +141,8 @@ public class CNACanvas extends JPanel {
                             project.addShapeToShapesList(new Circle(
                                     (int) pointRegisterA.getX(),
                                     (int) pointRegisterA.getY(),
-                                    e.getX(),
-                                    e.getY(),
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                     project.getColorsList().get(
                                             project.getActiveColor()
                                     ),
@@ -146,12 +158,18 @@ public class CNACanvas extends JPanel {
                     case 5 -> {
                         // ellisse
                         if (stageRegister == 0) {
-                            pointRegisterA = new Point(e.getX(), e.getY());
+                            pointRegisterA = new Point(
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
+                            );
                             stageRegister++;
                             xyDisplay.setText("[INSERT] Punto raggio 1");
                             repaint();
                         } else if (stageRegister == 1) {
-                            pointRegisterB = new Point(e.getX(), e.getY());
+                            pointRegisterB = new Point(
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
+                            );
                             stageRegister++;
                             xyDisplay.setText("[INSERT] Punto raggio 2");
                             repaint();
@@ -161,8 +179,8 @@ public class CNACanvas extends JPanel {
                                     (int) pointRegisterA.getY(),
                                     (int) pointRegisterB.getX(),
                                     (int) pointRegisterB.getY(),
-                                    e.getX(),
-                                    e.getY(),
+                                    Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                    Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                     project.getColorsList().get(
                                             project.getActiveColor()
                                     ),
@@ -178,8 +196,8 @@ public class CNACanvas extends JPanel {
                     case 6 -> {
                         // strumento testo
                         project.addShapeToShapesList(new SingleLineText(
-                                e.getX(),
-                                e.getY(),
+                                Misc.objectSnapCalc(e.getX(), project.isObjectSnappingEnabled()),
+                                Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled()),
                                 project.getColorsList().get(
                                         project.getActiveColor()
                                 ),
@@ -216,7 +234,7 @@ public class CNACanvas extends JPanel {
                 g2,
                 pointRegisterA,
                 pointRegisterB,
-                true
+                project.isObjectBoundariesEnabled()
         );
 
     }

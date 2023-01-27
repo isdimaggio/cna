@@ -29,6 +29,7 @@ public class ViewMenu extends JMenu {
 
     Project project;
     JMenuItem canvasGridMenuItem;
+    JMenuItem objectBoundariesMenuItem;
 
     public ViewMenu(Project project) {
         super("Visualizza (V)");
@@ -61,12 +62,24 @@ public class ViewMenu extends JMenu {
         canvasGridMenuItem.setSelected(true);
         canvasGridMenuItem.addActionListener(e -> setCanvasGridVisibility(canvasGridMenuItem.isSelected(), true));
         add(canvasGridMenuItem);
+
+        objectBoundariesMenuItem = new JCheckBoxMenuItem("Delimitatori oggetti");
+        objectBoundariesMenuItem.setSelected(true);
+        objectBoundariesMenuItem.addActionListener(e -> setObjectBoundariesVisibility(objectBoundariesMenuItem.isSelected(), true));
+        add(objectBoundariesMenuItem);
     }
 
     public void setCanvasGridVisibility(boolean status, boolean fireUpdate) {
         canvasGridMenuItem.setSelected(status);
         if (fireUpdate) {
             project.setCanvasGridVisibility(status);
+        }
+    }
+
+    public void setObjectBoundariesVisibility(boolean status, boolean fireUpdate) {
+        objectBoundariesMenuItem.setSelected(status);
+        if (fireUpdate) {
+            project.setObjectBoundariesEnabled(status);
         }
     }
 

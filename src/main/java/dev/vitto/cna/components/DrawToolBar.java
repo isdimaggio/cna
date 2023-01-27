@@ -46,12 +46,15 @@ public class DrawToolBar {
 
     JButton fillButton = new JButton();
     JButton canvasGridVisibilityButton = new JButton();
+    JButton objectSnappingButton = new JButton();
+    JButton objectBoundariesVisibilityButton = new JButton();
 
     Border defaultBorder;
     Border selectedBorder = BorderFactory.createLineBorder(Color.GREEN, 3);
 
     JMenu jMenu = new JMenu("Disegna (D)");
     JCheckBoxMenuItem fillMenuItem;
+    JCheckBoxMenuItem objectSnappingMenuItem;
 
     public DrawToolBar(JFrame parent, Project project) {
 
@@ -114,6 +117,16 @@ public class DrawToolBar {
         canvasGridVisibilityButton.addActionListener(e -> setCanvasGridVisibility(!project.isCanvasGridVisibility(), true));
         toolBar.add(canvasGridVisibilityButton);
 
+        objectSnappingButton.setToolTipText("Attiva object snapping");
+        objectSnappingButton.setIcon(IconLoader.OSNAP_OFF);
+        objectSnappingButton.addActionListener(e -> setObjectSnappingActive(!project.isObjectSnappingEnabled(), true));
+        toolBar.add(objectSnappingButton);
+
+        objectBoundariesVisibilityButton.setToolTipText("Attiva delimitatori oggetti");
+        objectBoundariesVisibilityButton.setIcon(IconLoader.BOUNDARY_OFF);
+        objectBoundariesVisibilityButton.addActionListener(e -> setObjectBoundariesVisibility(!project.isObjectBoundariesEnabled(), true));
+        toolBar.add(objectBoundariesVisibilityButton);
+
         // menu contestuale
         JMenuItem menuItem;
         jMenu.setMnemonic(KeyEvent.VK_D);
@@ -167,10 +180,15 @@ public class DrawToolBar {
         menuItem.addActionListener(e -> setActiveInstrument(0, true));
         jMenu.add(menuItem);
 
-        fillMenuItem = new JCheckBoxMenuItem("Attiva riempimento");
+        fillMenuItem = new JCheckBoxMenuItem("Riempimento");
         fillMenuItem.setSelected(false);
         fillMenuItem.addActionListener(e -> setFillShapesActive(fillMenuItem.isSelected(), true));
         jMenu.add(fillMenuItem);
+
+        objectSnappingMenuItem = new JCheckBoxMenuItem("Object snapping");
+        objectSnappingMenuItem.setSelected(false);
+        objectSnappingMenuItem.addActionListener(e -> setObjectSnappingActive(objectSnappingMenuItem.isSelected(), true));
+        jMenu.add(objectSnappingMenuItem);
 
     }
 
@@ -231,6 +249,37 @@ public class DrawToolBar {
 
         if (fireUpdate) {
             project.setCanvasGridVisibility(status);
+        }
+    }
+
+    public void setObjectSnappingActive(boolean status, boolean fireUpdate) {
+
+        if (status) {
+            objectSnappingButton.setToolTipText("Disattiva object snapping");
+            objectSnappingButton.setIcon(IconLoader.OSNAP_ON);
+            objectSnappingMenuItem.setSelected(true);
+        } else {
+            objectSnappingButton.setToolTipText("Attiva object snapping");
+            objectSnappingButton.setIcon(IconLoader.OSNAP_OFF);
+            objectSnappingMenuItem.setSelected(false);
+        }
+
+        if (fireUpdate) {
+            project.setObjectSnappingEnabled(status);
+        }
+    }
+
+    public void setObjectBoundariesVisibility(boolean status, boolean fireUpdate) {
+        if (status) {
+            objectBoundariesVisibilityButton.setToolTipText("Disattiva delimitatori oggetti");
+            objectBoundariesVisibilityButton.setIcon(IconLoader.BOUNDARY_ON);
+        } else {
+            objectBoundariesVisibilityButton.setToolTipText("Attiva delimitatori oggetti");
+            objectBoundariesVisibilityButton.setIcon(IconLoader.BOUNDARY_OFF);
+        }
+
+        if (fireUpdate) {
+            project.setObjectBoundariesEnabled(status);
         }
     }
 
