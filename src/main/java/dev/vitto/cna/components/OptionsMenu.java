@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 @author "Vittorio Lo Mele"
+@author "Adele Rendina"
 */
 
 package dev.vitto.cna.components;
@@ -29,8 +30,6 @@ import java.awt.event.KeyEvent;
 
 public class OptionsMenu extends JMenu {
 
-    Project project;
-
     public OptionsMenu(Project project, char meta_mask, JFrame parent) {
         super("Opzioni Progetto (S)");
         setMnemonic(KeyEvent.VK_S);
@@ -41,7 +40,9 @@ public class OptionsMenu extends JMenu {
                 KeyStroke.getKeyStroke(KeyEvent.VK_C, meta_mask + KeyEvent.ALT_DOWN_MASK));
         colorOptionsMenuItem.getAccessibleContext().setAccessibleDescription("Modifica colori");
         colorOptionsMenuItem.addActionListener(e -> {
+            // crea lista delle scelte
             Object[] choices = {1, 2, 3, 4, 5, 6, 7, 8};
+            // invoca dialog di selezione
             Integer i = (Integer) JOptionPane.showInputDialog(
                     parent,
                     "Seleziona lo slot colore da modificare:",
@@ -53,6 +54,7 @@ public class OptionsMenu extends JMenu {
 
             if (i != null) {
                 i = i - 1;
+                // apri dialog di selezione colore
                 Color newColor = JColorChooser.showDialog(
                         null, "Modifica dello slot colore " + i, project.getColorsList().get(i));
                 if (newColor != null) {
@@ -130,13 +132,11 @@ public class OptionsMenu extends JMenu {
 
         JMenuItem softwareInfoMenuItem = new JMenuItem("Informazioni sul software", IconLoader.INFO_ICON);
         softwareInfoMenuItem.getAccessibleContext().setAccessibleDescription("Credits");
-        softwareInfoMenuItem.addActionListener(e -> {
-            JOptionPane.showMessageDialog(parent,
-                    Misc.SOFTWARE_INFO,
-                    "Informazioni sul software",
-                    JOptionPane.INFORMATION_MESSAGE,
-                    IconLoader.PROGRAM_ICON);
-        });
+        softwareInfoMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(parent,
+                Misc.SOFTWARE_INFO,
+                "Informazioni sul software",
+                JOptionPane.INFORMATION_MESSAGE,
+                IconLoader.PROGRAM_ICON));
 
         add(softwareInfoMenuItem);
 

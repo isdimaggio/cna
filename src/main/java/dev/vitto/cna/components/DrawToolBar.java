@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 @author "Vittorio Lo Mele"
+@author "Adele Rendina"
 */
 
 package dev.vitto.cna.components;
@@ -22,6 +23,7 @@ package dev.vitto.cna.components;
 import dev.vitto.cna.Project;
 import dev.vitto.cna.utils.IconLoader;
 import dev.vitto.cna.utils.IconResize;
+import dev.vitto.cna.utils.Misc;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -31,6 +33,7 @@ import java.awt.event.KeyEvent;
 public class DrawToolBar {
 
     Project project;
+    JFrame parent;
 
     JToolBar toolBar;
     JButton noCommandButton = new JButton();
@@ -50,11 +53,12 @@ public class DrawToolBar {
     JMenu jMenu = new JMenu("Disegna (D)");
     JCheckBoxMenuItem fillMenuItem;
 
-    public DrawToolBar(Project project, char meta_mask) {
+    public DrawToolBar(JFrame parent, Project project) {
 
         // bottoni toolbar
         toolBar = new JToolBar("Disegna");
         this.project = project;
+        this.parent = parent;
 
         noCommandButton.setToolTipText("Nessun comando");
         noCommandButton.setIcon(IconLoader.HAND_CMD);
@@ -91,7 +95,11 @@ public class DrawToolBar {
 
         textButton.setToolTipText("Testo Single-Line");
         textButton.setIcon(IconLoader.TEXT_CMD);
-        textButton.addActionListener(e -> setActiveInstrument(6, true));
+        textButton.addActionListener(e -> {
+            if (Misc.textDataInsertionDialog(parent, project)) {
+                setActiveInstrument(6, true);
+            }
+        });
         toolBar.add(textButton);
 
         toolBar.addSeparator();
@@ -100,8 +108,6 @@ public class DrawToolBar {
         fillButton.setIcon(IconLoader.FILL_OFF_CMD);
         fillButton.addActionListener(e -> setFillShapesActive(!project.isFillShapesActive(), true));
         toolBar.add(fillButton);
-
-        toolBar.addSeparator();
 
         canvasGridVisibilityButton.setToolTipText("Disattiva griglia");
         canvasGridVisibilityButton.setIcon(IconLoader.GRID_ON_CMD);
@@ -146,7 +152,11 @@ public class DrawToolBar {
         menuItem = new JMenuItem("Testo Single-Line", IconResize.resize(IconLoader.TEXT_CMD, 16, 16));
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, KeyEvent.CTRL_DOWN_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription("Disegna un cerchio definendo prima il centro e poi il raggio");
-        menuItem.addActionListener(e -> setActiveInstrument(6, true));
+        menuItem.addActionListener(e -> {
+            if (Misc.textDataInsertionDialog(parent, project)) {
+                setActiveInstrument(6, true);
+            }
+        });
         jMenu.add(menuItem);
 
         jMenu.addSeparator();

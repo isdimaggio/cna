@@ -22,39 +22,49 @@ package dev.vitto.cna.windows;
 import dev.vitto.cna.CNACanvas;
 import dev.vitto.cna.Project;
 import dev.vitto.cna.components.*;
+import dev.vitto.cna.objects.Shape;
 import dev.vitto.cna.utils.IconLoader;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
 public class MainWindow extends JFrame {
 
-    JMenuItem debug = new JMenu("X: 0 | Y: 0");
+    JMenuItem xyDisplay = new JMenu("X: 0 | Y: 0");
     DrawToolBar drawToolBar;
     ColorStrokeToolBar colorStrokeToolBar;
     ViewMenu viewMenu;
     JMenu optionsMenu;
     JMenu fileMenu;
-    JScrollPane listScroller;
-    JPanel propertyScroller;
-    JSplitPane pannelloLaterale;
-    JSplitPane pannelloPadre;
+    JMenu editMenu;
+    JScrollPane objectListPanel;
+    PropertyPane objectPropertiesPanel;
+    int[] selectedIndexes = {};
+    JSplitPane sidePanel;
+    JSplitPane mainPanel;
     CNACanvas cnaCanvas;
+    Project project;
+    DefaultListModel<Shape> listModel;
+    JList<Shape> guiObjectList;
 
     public MainWindow(boolean isMacOS, Project project) {
 
         super("CNA (CNA's Not AutoCAD) - " + project.getProjectName());
+        this.project = project;
 
-        char META_CTRL_MASK;
+        char shortcut_mask;
 
+        // se macos inverti i tasti CTRL e CMD
         if (isMacOS) {
-            META_CTRL_MASK = InputEvent.META_DOWN_MASK;
+            shortcut_mask = InputEvent.META_DOWN_MASK;
         } else {
-            META_CTRL_MASK = InputEvent.CTRL_DOWN_MASK;
+            shortcut_mask = InputEvent.CTRL_DOWN_MASK;
         }
 
         // impostazioni generali della finestra
@@ -66,22 +76,30 @@ public class MainWindow extends JFrame {
         setResizable(true);
         setVisible(true);
 
-        drawToolBar = new DrawToolBar(project, META_CTRL_MASK);
+        /*
+          inizializzazione delle toolbar del programma
+          le toolbar hanno bisogno del
+             - progetto corrente (per impartire modifiche agli strumenti od oggetti)
+             - il tasto accessorio per gli shortcut (solo menu a tendina)
+             - la finestra parent (per aprire i dialog)
+        */
+        drawToolBar = new DrawToolBar(this, project);
         colorStrokeToolBar = new ColorStrokeToolBar(project);
         viewMenu = new ViewMenu(project);
-        optionsMenu = new OptionsMenu(project, META_CTRL_MASK, this);
-        fileMenu = new FileMenu(project, META_CTRL_MASK, this);
+        optionsMenu = new OptionsMenu(project, shortcut_mask, this);
+        fileMenu = new FileMenu(project, shortcut_mask, this);
+        editMenu = new EditMenu(project, shortcut_mask, this);
 
         // aggiungi tutti i menu nella barra superiore
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(fileMenu);
-        menuBar.add(EditMenu.get(META_CTRL_MASK));
+        menuBar.add(editMenu);
         menuBar.add(viewMenu);
         menuBar.add(drawToolBar.getJMenu());
         menuBar.add(colorStrokeToolBar.getJMenu());
         menuBar.add(optionsMenu);
         menuBar.add(Box.createHorizontalGlue());
-        menuBar.add(debug);
+        menuBar.add(xyDisplay);
         setJMenuBar(menuBar);
 
         //Disegna l'interfaccia grafica
@@ -90,33 +108,52 @@ public class MainWindow extends JFrame {
         add(colorStrokeToolBar.getJToolBar(), BorderLayout.PAGE_END);
 
         // crea componente lista oggetti
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        for (int i = 0; i < 10; i++) {
-            listModel.addElement("Oggetto di esempio " + i);
-        }
+        listModel = new DefaultListModel<>();
+        listModel.addAll(project.getShapesList());
 
-        JList list = new JList(listModel); //data has type Object[]
-        list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        list.setLayoutOrientation(JList.VERTICAL);
-        list.setVisibleRowCount(-1);
+        // crea pannello proprietà
+        objectPropertiesPanel = new PropertyPane();
+        objectPropertiesPanel.setBorder(BorderFactory.createTitledBorder("Proprietà oggetti selezionati"));
 
-        listScroller = new JScrollPane(list);
-        listScroller.setPreferredSize(new Dimension(250, 80));
-        listScroller.setBorder(BorderFactory.createTitledBorder("Lista oggetti"));
+        guiObjectList = new JList<>(listModel); //data has type Object[]
+        guiObjectList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        guiObjectList.setLayoutOrientation(JList.VERTICAL);
+        guiObjectList.setVisibleRowCount(-1);
+        // selection listener per aggiornare propertypane
+        guiObjectList.addListSelectionListener(e -> {
+            objectPropertiesPanel.viewObjectProperties(
+                    project.getShapesList(),
+                    guiObjectList.getSelectedIndices()
+            );
+            selectedIndexes = guiObjectList.getSelectedIndices();
+        });
+        // double click listener per il rinomino
+        guiObjectList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList list = (JList) evt.getSource();
+                if (evt.getClickCount() == 2) {
+                    // dialog per rinominare oggetto
+                    int[] indexes = {list.locationToIndex(evt.getPoint())};
+                    renameObjects(indexes);
+                }
+            }
+        });
 
-        propertyScroller = new JPanel();
-        propertyScroller.setBorder(BorderFactory.createTitledBorder("Proprietà oggetto selezionato"));
+        // crea pannello scrollabile della lista oggetti
+        objectListPanel = new JScrollPane(guiObjectList);
+        objectListPanel.setPreferredSize(new Dimension(250, 80)); // togli magari??
+        objectListPanel.setBorder(BorderFactory.createTitledBorder("Lista oggetti"));
 
-        pannelloLaterale = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listScroller, propertyScroller);
-        pannelloLaterale.setResizeWeight(1);
-        pannelloLaterale.setDividerLocation(300);
+        sidePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, objectListPanel, objectPropertiesPanel);
+        sidePanel.setResizeWeight(1);
+        sidePanel.setDividerLocation(300);
 
-        cnaCanvas = new CNACanvas(debug);
+        cnaCanvas = new CNACanvas(xyDisplay, project);
 
-        pannelloPadre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pannelloLaterale, cnaCanvas);
-        pannelloPadre.setResizeWeight(1);
-        pannelloPadre.setDividerLocation(300);
-        add(pannelloPadre, BorderLayout.CENTER);
+        mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePanel, cnaCanvas);
+        mainPanel.setResizeWeight(1);
+        mainPanel.setDividerLocation(300);
+        add(mainPanel, BorderLayout.CENTER);
 
         // listener per i cambi di variabile nel progetto
         project.addPropertyChangeListener((PropertyChangeEvent event) -> {
@@ -126,6 +163,12 @@ public class MainWindow extends JFrame {
             if (Project.ACTIVE_INSTRUMENT.equals(event.getPropertyName())) {
                 drawToolBar.setActiveInstrument((Integer) event.getNewValue(), false);
                 cnaCanvas.changeCursor((Integer) event.getNewValue() > 0);
+                if ((int) event.getNewValue() > 0) {
+                    // AGGIORNAMENTO testo xyDisplay
+                    xyDisplay.setText("[INSERT] Punto root");
+                } else {
+                    xyDisplay.setText("X: 0 | Y: 0");
+                }
             }
             if (Project.FILL_SHAPES_ACTIVE.equals(event.getPropertyName())) {
                 drawToolBar.setFillShapesActive((boolean) event.getNewValue(), false);
@@ -149,17 +192,22 @@ public class MainWindow extends JFrame {
                 colorStrokeToolBar.getJToolBar().setVisible((boolean) event.getNewValue());
             }
             if (Project.OBJECTLIST_SIDEBAR_VISIBILITY.equals(event.getPropertyName())) {
-                listScroller.setVisible((boolean) event.getNewValue());
-                updateSidebarBoundaries();
+                objectListPanel.setVisible((boolean) event.getNewValue());
+                updateSidePanelBoundaries();
             }
             if (Project.OBJECTPROPERTIES_SIDEBAR_VISIBILITY.equals(event.getPropertyName())) {
-                propertyScroller.setVisible((boolean) event.getNewValue());
-                updateSidebarBoundaries();
+                objectPropertiesPanel.setVisible((boolean) event.getNewValue());
+                updateSidePanelBoundaries();
             }
             if (Project.CANVAS_GRID_VISIBILITY.equals(event.getPropertyName())) {
                 cnaCanvas.setGridVisible((boolean) event.getNewValue());
                 drawToolBar.setCanvasGridVisibility((boolean) event.getNewValue(), false);
                 viewMenu.setCanvasGridVisibility((boolean) event.getNewValue(), false);
+            }
+            if (Project.SHAPES_LIST.equals(event.getPropertyName())) {
+                cnaCanvas.repaint();
+                listModel.removeAllElements();
+                listModel.addAll(project.getShapesList());
             }
         });
 
@@ -169,33 +217,99 @@ public class MainWindow extends JFrame {
 
     }
 
-    void updateSidebarBoundaries() {
+    /*
+        CAMBIO DI VISIBILITÀ DEI PANNELLI LATERALI:
+        Dopo questo evento, bisogna aggiornare le dimensioni dei pannelli per evitare di lasciare
+        buchi nell'interfaccia grafica quando vengono nascosti pezzi di essa.
+     */
+    void updateSidePanelBoundaries() {
         // controlla se solo uno dei due pannelli è visibile
-        if (listScroller.isVisible() ^ propertyScroller.isVisible()) {
-            pannelloLaterale.setVisible(true);
-            pannelloPadre.setDividerLocation(pannelloPadre.getWidth() / 5);
-            if (listScroller.isVisible()) {
+        if (objectListPanel.isVisible() ^ objectPropertiesPanel.isVisible()) {
+            sidePanel.setVisible(true);
+            mainPanel.setDividerLocation(mainPanel.getWidth() / 5);
+            if (objectListPanel.isVisible()) {
                 // imposta divider alla fine per dare tutto lo spazio al pannello superiore
-                pannelloLaterale.setDividerLocation(pannelloLaterale.getHeight() - 1);
+                sidePanel.setDividerLocation(sidePanel.getHeight() - 1);
             } else {
                 // imposta divider all'inizio
-                pannelloLaterale.setDividerLocation(1);
+                sidePanel.setDividerLocation(1);
             }
-        } else if (listScroller.isVisible() && propertyScroller.isVisible()) {
+        } else if (objectListPanel.isVisible() && objectPropertiesPanel.isVisible()) {
             // sono tutti e due visibili
-            pannelloLaterale.setVisible(true);
-            pannelloPadre.setDividerLocation(pannelloPadre.getWidth() / 5);
-            // imposta divisione a metà
-            pannelloLaterale.setDividerLocation((pannelloLaterale.getHeight() / 2) + 1);
+            sidePanel.setVisible(true);
+            // imposta divisione a metà per il side e 1/5 per il main
+            mainPanel.setDividerLocation(mainPanel.getWidth() / 5);
+            sidePanel.setDividerLocation((sidePanel.getHeight() / 2) + 1);
         } else {
             // nessuno dei due visibili, nascondi tutto
-            pannelloLaterale.setVisible(false);
-            pannelloPadre.setDividerLocation(0);
+            sidePanel.setVisible(false);
+            mainPanel.setDividerLocation(0);
         }
     }
 
+    /*
+        Wrapper della funzione del canvas per renderla disponibile a tutti gli oggetti
+        con un riferimento a questa finestra.
+    */
     public BufferedImage exportCanvasToImage() {
         return cnaCanvas.exportToImage();
+    }
+
+    public void deleteSelectedObjects() {
+        for (int index : selectedIndexes
+        ) {
+            try {
+                project.removeShapeFromShapesList(index);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public void renameObjects(int[] index) {
+        if (index.length != 1) {
+            //dialog errore
+            JOptionPane.showMessageDialog(this,
+                    "Per favore, seleziona solo e solamente un'oggetto",
+                    "Rinomina oggetto",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int i;
+        if (index[0] == -1) {
+            i = selectedIndexes[0];
+        } else {
+            i = index[0];
+        }
+
+        String s = (String) JOptionPane.showInputDialog(
+                this,
+                "Inserisci il nuovo nome dell' oggetto:",
+                "Rinomina oggetto",
+                JOptionPane.PLAIN_MESSAGE,
+                IconLoader.STROKE_ICON,
+                null,
+                project.getShapesList().get(i).getName());
+
+        if (s != null) {
+            if (s.length() > 1) {
+                project.getShapesList().get(i).setName(s);
+                project.fireShapeListPropChange();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Impossibile cambiare il nome dell'oggetto",
+                        "Errore",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+    }
+
+    public void selectAll() {
+        int end = listModel.getSize() - 1;
+        if (end >= 0) {
+            guiObjectList.setSelectionInterval(0, end);
+        }
     }
 
 }

@@ -19,13 +19,21 @@ limitations under the License.
 
 package dev.vitto.cna;
 
+import dev.vitto.cna.objects.Shape;
+
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Project {
+public class Project implements java.io.Serializable {
+    /*
+        LISTA COSTANTI NOMI EVENTI:
+        Tutti gli eventi di cambio proprietà, quando vengono lanciati, sono corredati
+        dal loro nome, per poter permettere ai listener registrati di capire se l'evento
+        è indirizzato a loro o meno.
+     */
     public static final String ACTIVE_INSTRUMENT = "activeInstrument";
     public static final String PROJECT_NAME = "projectName";
     public static final String FILL_SHAPES_ACTIVE = "fillShapesActive";
@@ -38,48 +46,47 @@ public class Project {
     public static final String OBJECTLIST_SIDEBAR_VISIBILITY = "objectListSidebarVisibility";
     public static final String OBJECTPROPERTIES_SIDEBAR_VISIBILITY = "objectPropertiesSidebarVisibility";
     public static final String CANVAS_GRID_VISIBILITY = "canvasGridVisibility";
+    public static final String SHAPES_LIST = "shapesList";
     public static final String DEFAULT_PROJECT_NAME = "Progetto senza titolo";
+
+    /*
+        PROPERTY CHANGE SUPPORT:
+        Aggiunge il supporto per un sistema listener -> subscriber per allertare tutte le parti
+        del programma di eventuali cambiamenti nel progetto.
+
+        Cambio Proprietà --> Event Router (MainWindow) --> Dispatch eventi
+     */
     private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
 
     // ********************************* //
 
     private String projectName = DEFAULT_PROJECT_NAME;
-    private int activeInstrument = 0;
-    private boolean fillShapesActive = false;
+    private int activeInstrument = 0; // strumento attivo di disegno
+    private boolean fillShapesActive = false; // riempimento delle forme
 
-    private List<Integer> strokesList = new ArrayList<>(5);
-    private List<Color> colorsList = new ArrayList<>(8);
+    private List<Integer> strokesList = new ArrayList<>(5); // lista degli spessori selezionabili
+    private List<Color> colorsList = new ArrayList<>(8); // lista dei colori selezionabili
 
-    private int activeStroke = 0;
-    private int activeColor = 0;
+    private int activeStroke = 0; // spessore attivo (index della lista)
+    private int activeColor = 0; // colore attivo (index della lista)
 
-    private boolean drawToolbarVisibility = true;
-    private boolean csToolbarVisibility = true; // cs: color and stroke
+    private boolean drawToolbarVisibility = true; // visibilità della toolbar di disegno
+    private boolean csToolbarVisibility = true; // visibilità della toolbar colore e spessore
 
-    private boolean objectListSidebarVisibility = true;
-    private boolean objectPropertiesSidebarVisibility = true;
+    private boolean objectListSidebarVisibility = true; // visibilità della sezione lista oggetti nella barra laterale
+    private boolean objectPropertiesSidebarVisibility = true; // visibilità della sez. proprietà ""
 
-    private boolean canvasGridVisibility = true;
+    private boolean canvasGridVisibility = true; // visibilità della griglia nel canvas
+
+    private List<Shape> shapesList = new ArrayList<>(); // lista di tutte le figure geometriche da renderizzare
+
+    private String textContentForInsert = "Lorem ipsum dolor sit amet";
+    private int textHeightForInsert = 13;
 
     // ********************************* //
 
     public Project() {
-        // defaut strokes
-        strokesList.add(3);
-        strokesList.add(5);
-        strokesList.add(7);
-        strokesList.add(9);
-        strokesList.add(11);
-
-        // default colors
-        colorsList.add(Color.red);
-        colorsList.add(Color.green);
-        colorsList.add(Color.blue);
-        colorsList.add(Color.cyan);
-        colorsList.add(Color.yellow);
-        colorsList.add(Color.magenta);
-        colorsList.add(Color.black);
-        colorsList.add(Color.white);
+        loadDefaults();
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -90,6 +97,58 @@ public class Project {
         mPcs.removePropertyChangeListener(listener);
     }
 
+    private void loadDefaults() {
+        // caricamento spessori predefiniti
+        strokesList.add(3);
+        strokesList.add(5);
+        strokesList.add(7);
+        strokesList.add(9);
+        strokesList.add(11);
+
+        // caricamento colori predefiniti
+        colorsList.add(Color.red);
+        colorsList.add(Color.green);
+        colorsList.add(Color.blue);
+        colorsList.add(Color.cyan);
+        colorsList.add(Color.yellow);
+        colorsList.add(Color.magenta);
+        colorsList.add(Color.black);
+        colorsList.add(Color.white);
+
+        textContentForInsert = "Lorem ipsum dolor sit amet";
+        textHeightForInsert = 13;
+    }
+
+    public void clearProject() {
+        projectName = DEFAULT_PROJECT_NAME;
+        activeInstrument = 0;
+        fillShapesActive = false;
+        strokesList = new ArrayList<>(5);
+        colorsList = new ArrayList<>(8);
+        activeStroke = 0;
+        activeColor = 0;
+        drawToolbarVisibility = true;
+        csToolbarVisibility = true;
+        objectListSidebarVisibility = true;
+        objectPropertiesSidebarVisibility = true;
+        canvasGridVisibility = true;
+        shapesList = new ArrayList<>();
+        loadDefaults();
+        mPcs.firePropertyChange(PROJECT_NAME, null, projectName);
+        mPcs.firePropertyChange(ACTIVE_INSTRUMENT, null, activeInstrument);
+        mPcs.firePropertyChange(FILL_SHAPES_ACTIVE, null, fillShapesActive);
+        mPcs.firePropertyChange(STROKES_LIST, null, strokesList);
+        mPcs.firePropertyChange(COLORS_LIST, null, colorsList);
+        mPcs.firePropertyChange(ACTIVE_STROKE, null, activeStroke);
+        mPcs.firePropertyChange(ACTIVE_COLOR, null, activeColor);
+        mPcs.firePropertyChange(DRAW_TOOLBAR_VISIBILITY, null, drawToolbarVisibility);
+        mPcs.firePropertyChange(CS_TOOLBAR_VISIBILITY, null, csToolbarVisibility);
+        mPcs.firePropertyChange(OBJECTLIST_SIDEBAR_VISIBILITY, null, objectListSidebarVisibility);
+        mPcs.firePropertyChange(OBJECTPROPERTIES_SIDEBAR_VISIBILITY, null, objectListSidebarVisibility);
+        mPcs.firePropertyChange(CANVAS_GRID_VISIBILITY, null, canvasGridVisibility);
+        mPcs.firePropertyChange(SHAPES_LIST, null, shapesList);
+    }
+
     // ********************************* //
 
     public String getProjectName() {
@@ -97,6 +156,7 @@ public class Project {
     }
 
     public void setProjectName(String projectName) {
+        // controlla validità del nome del progetto
         if (projectName == null || projectName.length() < 1) {
             return;
         }
@@ -139,6 +199,8 @@ public class Project {
     }
 
     public void setStrokesList(List<Integer> strokesList) {
+        // la lista spessori non può superare i 5 elementi
+        // gli spessori non possono superare i 30px
         List<Integer> oldStrokesList = new ArrayList<>(strokesList);
         if (strokesList.size() != 5) {
             return;
@@ -152,6 +214,7 @@ public class Project {
     }
 
     public void setStrokesList(int stroke, int index) {
+        // vedi annotazioni metodo
         List<Integer> oldStrokesList = new ArrayList<>(strokesList);
         if (index < 0 || index > 4) {
             return;
@@ -168,6 +231,7 @@ public class Project {
     }
 
     public void setColorsList(List<Color> colorsList) {
+        // la lista colori non può superare gli 8 elementi
         List<Color> oldColorsList = new ArrayList<>(colorsList);
         if (colorsList.size() != 8) {
             return;
@@ -256,5 +320,69 @@ public class Project {
         this.canvasGridVisibility = canvasGridVisibility;
         mPcs.firePropertyChange(
                 CANVAS_GRID_VISIBILITY, !canvasGridVisibility, canvasGridVisibility);
+    }
+
+    public List<Shape> getShapesList() {
+        return shapesList;
+    }
+
+    public void setShapesList(List<Shape> shapesList) {
+        List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        this.shapesList = shapesList;
+        mPcs.firePropertyChange(
+                SHAPES_LIST, oldShapesList, shapesList);
+    }
+
+    public void setShapesList(Shape shape, int index) {
+        List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        this.shapesList.set(index, shape);
+        mPcs.firePropertyChange(
+                SHAPES_LIST, oldShapesList, shapesList);
+    }
+
+    public void addShapeToShapesList(Shape shape) {
+        List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        this.shapesList.add(shape);
+        mPcs.firePropertyChange(
+                SHAPES_LIST, oldShapesList, shapesList);
+    }
+
+    public void removeShapeFromShapesList(Shape shape) {
+        List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        this.shapesList.remove(shape);
+        mPcs.firePropertyChange(
+                SHAPES_LIST, oldShapesList, shapesList);
+    }
+
+    public void removeShapeFromShapesList(int index) {
+        List<Shape> oldShapesList = new ArrayList<>(shapesList);
+        this.shapesList.remove(index);
+        mPcs.firePropertyChange(
+                SHAPES_LIST, oldShapesList, shapesList);
+    }
+
+    public void fireShapeListPropChange() {
+        mPcs.firePropertyChange(
+                SHAPES_LIST, null, shapesList);
+    }
+
+    public String getTextContentForInsert() {
+        return textContentForInsert;
+    }
+
+    public void setTextContentForInsert(String textContentForInsert) {
+        // non interessa il propertyChangeSupport essendo una proprietà inizializzata...
+        // ...a ogni click del bottone "testo"
+        this.textContentForInsert = textContentForInsert;
+    }
+
+    public int getTextHeightForInsert() {
+        return textHeightForInsert;
+    }
+
+    public void setTextHeightForInsert(int textHeightForInsert) {
+        // non interessa il propertyChangeSupport essendo una proprietà inizializzata...
+        // ...a ogni click del bottone "testo"
+        this.textHeightForInsert = textHeightForInsert;
     }
 }

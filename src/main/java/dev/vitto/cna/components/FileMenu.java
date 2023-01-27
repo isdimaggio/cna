@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 @author "Vittorio Lo Mele"
+@author "Adele Rendina"
 */
 
 package dev.vitto.cna.components;
@@ -53,6 +54,7 @@ public class FileMenu extends JMenu {
         JMenuItem newDrawingMenuItem = new JMenuItem("Nuovo disegno", IconLoader.NEW_ICON);
         newDrawingMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, meta_mask));
         newDrawingMenuItem.getAccessibleContext().setAccessibleDescription("Crea un nuovo disegno");
+        newDrawingMenuItem.addActionListener(e -> this.project.clearProject());
         add(newDrawingMenuItem);
 
         JMenuItem openDrawingMenuItem = new JMenuItem("Apri disegno", IconLoader.OPEN_ICON);

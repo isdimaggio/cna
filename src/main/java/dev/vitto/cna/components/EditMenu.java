@@ -15,63 +15,68 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 @author "Vittorio Lo Mele"
+@author "Adele Rendina"
 */
 
 package dev.vitto.cna.components;
 
+import dev.vitto.cna.Project;
 import dev.vitto.cna.utils.IconLoader;
+import dev.vitto.cna.windows.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-public class EditMenu {
+public class EditMenu extends JMenu {
 
-    public static JMenu get(char meta_mask) {
-        JMenu menu = new JMenu("Modifica (E)");
-        JMenuItem menuItem;
-        menu.setMnemonic(KeyEvent.VK_E);
-        menu.getAccessibleContext().setAccessibleDescription("Menù per la modifica degli elementi nel canvas");
+    Project project;
+    MainWindow parent;
+    char meta_mask;
 
-        menuItem = new JMenuItem("Annulla", IconLoader.UNDO_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Annulla l'ultima modifica fatta");
-        menu.add(menuItem);
+    public EditMenu(Project project, char meta_mask, MainWindow parent) {
+        super("Modifica (E)");
 
-        menuItem = new JMenuItem("Ripeti", IconLoader.REDO_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, meta_mask + KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Ripeti l'ultima modifica annullata");
-        menu.add(menuItem);
+        this.project = project;
+        this.parent = parent;
+        this.meta_mask = meta_mask;
 
-        menu.addSeparator();
+        setMnemonic(KeyEvent.VK_E);
+        getAccessibleContext().setAccessibleDescription("Menù per la modifica degli elementi nel canvas");
 
-        menuItem = new JMenuItem("Taglia", IconLoader.CUT_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Taglia l'elemento selezionato");
-        menu.add(menuItem);
+        JMenuItem undoMenuItem = new JMenuItem("Annulla", IconLoader.UNDO_ICON);
+        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, meta_mask));
+        undoMenuItem.getAccessibleContext().setAccessibleDescription("Annulla l'ultima modifica fatta");
+        add(undoMenuItem);
 
-        menuItem = new JMenuItem("Copia", IconLoader.COPY_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Copia l'elemento selezionato");
-        menu.add(menuItem);
+        JMenuItem redoMenuItem = new JMenuItem("Ripeti", IconLoader.REDO_ICON);
+        redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, meta_mask + KeyEvent.SHIFT_DOWN_MASK));
+        redoMenuItem.getAccessibleContext().setAccessibleDescription("Ripeti l'ultima modifica annullata");
+        add(redoMenuItem);
 
-        menuItem = new JMenuItem("Incolla", IconLoader.PASTE_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Incolla l'elemento selezionato");
-        menu.add(menuItem);
+        addSeparator();
 
-        menu.addSeparator();
+        JMenuItem selectAllMenuItem = new JMenuItem("Seleziona tutto", IconLoader.SELECT_ALL_ICON);
+        selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, meta_mask));
+        selectAllMenuItem.getAccessibleContext().setAccessibleDescription("Seleziona tutti gli elementi del disegno");
+        selectAllMenuItem.addActionListener(e -> parent.selectAll());
+        add(selectAllMenuItem);
 
-        menuItem = new JMenuItem("Seleziona tutto", IconLoader.SELECT_ALL_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, meta_mask));
-        menuItem.getAccessibleContext().setAccessibleDescription("Seleziona tutti gli elementi del disegno");
-        menu.add(menuItem);
+        JMenuItem renameMenuItem = new JMenuItem("Rinomina oggetto", IconLoader.STROKE_ICON);
+        renameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, meta_mask));
+        renameMenuItem.getAccessibleContext().setAccessibleDescription("Rinomina l'elemento selezionato");
+        //-1 per segnalare di prendere dal parent
+        renameMenuItem.addActionListener(e -> parent.renameObjects(new int[]{-1}));
+        add(renameMenuItem);
 
-        menuItem = new JMenuItem("Cancella elemento", IconLoader.DELETE_ICON);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.SHIFT_DOWN_MASK));
-        menuItem.getAccessibleContext().setAccessibleDescription("Cancella l'elemento selezionato");
-        menu.add(menuItem);
-
-        return menu;
+        JMenuItem deleteMenuItem = new JMenuItem("Cancella elementi", IconLoader.DELETE_ICON);
+        if (meta_mask == KeyEvent.META_DOWN_MASK) {
+            deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, meta_mask));
+        } else {
+            deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, meta_mask));
+        }
+        deleteMenuItem.getAccessibleContext().setAccessibleDescription("Cancella gli elementi selezionati");
+        deleteMenuItem.addActionListener(e -> parent.deleteSelectedObjects());
+        add(deleteMenuItem);
     }
 
 }

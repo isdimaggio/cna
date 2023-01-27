@@ -19,6 +19,9 @@ limitations under the License.
 
 package dev.vitto.cna;
 
+import dev.vitto.cna.objects.Rectangle;
+import dev.vitto.cna.objects.Shape;
+import dev.vitto.cna.objects.*;
 import dev.vitto.cna.utils.IconLoader;
 
 import javax.swing.*;
@@ -30,21 +33,165 @@ import java.awt.image.BufferedImage;
 public class CNACanvas extends JPanel {
 
     JMenuItem xyDisplay;
-    BufferedImage bi = (BufferedImage) IconLoader.GRID_TEXTURE.getImage();
+    Project project;
+    BufferedImage gridTextureImage = (BufferedImage) IconLoader.GRID_TEXTURE.getImage();
+    final TexturePaint texture = new TexturePaint(
+            gridTextureImage, new java.awt.Rectangle(10, 10));
+    // stadi inserimento
+    int stageRegister = 0;
+    Point pointRegisterA = new Point(-10, -10);
+    //Point pointRegisterC = new Point(-10,-10);
 
     boolean gridVisible = true;
-    final TexturePaint texture = new TexturePaint(
-            bi, new Rectangle(8, 8));
+    Point pointRegisterB = new Point(-10, -10);
 
-    public CNACanvas(JMenuItem xyDisplay) {
+    public CNACanvas(JMenuItem xyDisplay, Project project) {
         this.xyDisplay = xyDisplay;
+        this.project = project;
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                xyDisplay.setText("X: " + e.getX() + " | Y: " + e.getY());
+                switch (project.getActiveInstrument()) {
+                    case 0 -> // strumento manina, aggiorna solo lo xyDisplay con le nuove coordinate
+                            xyDisplay.setText("X: " + e.getX() + " | Y: " + e.getY());
+                    case 1 -> {
+                        // strumento punto
+                        project.addShapeToShapesList(new Shape(
+                                e.getX(),
+                                e.getY(),
+                                project.getColorsList().get(
+                                        project.getActiveColor()
+                                ),
+                                project.getStrokesList().get(
+                                        project.getActiveStroke()
+                                )
+                        ));
+                        repaint();
+                    }
+                    case 2 -> {
+                        // strumento linea
+                        if (stageRegister == 0) {
+                            pointRegisterA = new Point(e.getX(), e.getY());
+                            stageRegister++;
+                            xyDisplay.setText("[INSERT] Punto fine");
+                            repaint();
+                        } else {
+                            project.addShapeToShapesList(new Line(
+                                    (int) pointRegisterA.getX(),
+                                    (int) pointRegisterA.getY(),
+                                    e.getX(),
+                                    e.getY(),
+                                    project.getColorsList().get(
+                                            project.getActiveColor()
+                                    ),
+                                    project.getStrokesList().get(
+                                            project.getActiveStroke()
+                                    )
+                            ));
+                            resetStageRegisters();
+                            repaint();
+                        }
+                    }
+                    case 3 -> {
+                        // strumento rettangolo
+                        if (stageRegister == 0) {
+                            pointRegisterA = new Point(e.getX(), e.getY());
+                            stageRegister++;
+                            xyDisplay.setText("[INSERT] Punto fine");
+                            repaint();
+                        } else {
+                            project.addShapeToShapesList(new Rectangle(
+                                    (int) pointRegisterA.getX(),
+                                    (int) pointRegisterA.getY(),
+                                    e.getX(),
+                                    e.getY(),
+                                    project.getColorsList().get(
+                                            project.getActiveColor()
+                                    ),
+                                    project.getStrokesList().get(
+                                            project.getActiveStroke()
+                                    ),
+                                    project.isFillShapesActive()
+                            ));
+                            resetStageRegisters();
+                            repaint();
+                        }
+                    }
+                    case 4 -> {
+                        // strumento cerchio
+                        if (stageRegister == 0) {
+                            pointRegisterA = new Point(e.getX(), e.getY());
+                            stageRegister++;
+                            xyDisplay.setText("[INSERT] Punto fine");
+                            repaint();
+                        } else {
+                            project.addShapeToShapesList(new Circle(
+                                    (int) pointRegisterA.getX(),
+                                    (int) pointRegisterA.getY(),
+                                    e.getX(),
+                                    e.getY(),
+                                    project.getColorsList().get(
+                                            project.getActiveColor()
+                                    ),
+                                    project.getStrokesList().get(
+                                            project.getActiveStroke()
+                                    ),
+                                    project.isFillShapesActive()
+                            ));
+                            resetStageRegisters();
+                            repaint();
+                        }
+                    }
+                    case 5 -> {
+                        // ellisse
+                        if (stageRegister == 0) {
+                            pointRegisterA = new Point(e.getX(), e.getY());
+                            stageRegister++;
+                            xyDisplay.setText("[INSERT] Punto raggio 1");
+                            repaint();
+                        } else if (stageRegister == 1) {
+                            pointRegisterB = new Point(e.getX(), e.getY());
+                            stageRegister++;
+                            xyDisplay.setText("[INSERT] Punto raggio 2");
+                            repaint();
+                        } else {
+                            project.addShapeToShapesList(new Ellipse(
+                                    (int) pointRegisterA.getX(),
+                                    (int) pointRegisterA.getY(),
+                                    (int) pointRegisterB.getX(),
+                                    (int) pointRegisterB.getY(),
+                                    e.getX(),
+                                    e.getY(),
+                                    project.getColorsList().get(
+                                            project.getActiveColor()
+                                    ),
+                                    project.getStrokesList().get(
+                                            project.getActiveStroke()
+                                    ),
+                                    project.isFillShapesActive()
+                            ));
+                            resetStageRegisters();
+                            repaint();
+                        }
+                    }
+                    case 6 -> {
+                        // strumento testo
+                        project.addShapeToShapesList(new SingleLineText(
+                                e.getX(),
+                                e.getY(),
+                                project.getColorsList().get(
+                                        project.getActiveColor()
+                                ),
+                                project.getTextHeightForInsert(),
+                                project.getTextContentForInsert()
+                        ));
+                        repaint();
+                    }
+                }
             }
         });
+        setBackground(Color.WHITE);
     }
 
     public void changeCursor(boolean insert) {
@@ -58,31 +205,20 @@ public class CNACanvas extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         // sfondo STATICO area di lavoro
+        Graphics2D g2 = (Graphics2D) g;
         if (gridVisible) {
-            Graphics2D g2 = (Graphics2D) g;
             g2.setPaint(texture);
             g2.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        // da qua disegno DINAMICO
-        // ora codice temporaneo
+        RenderingEngine.render(
+                project.getShapesList(),
+                g2,
+                pointRegisterA,
+                pointRegisterB,
+                true
+        );
 
-        Font f = new Font("Times Roman", Font.BOLD, 20);
-        g.setFont(f);
-        g.setColor(Color.black);
-        g.fillOval(120, 220, 60, 60);        // una ruota piena
-        g.fillOval(320, 220, 60, 60);        // altra ruota piena
-        g.setColor(Color.blue);                                 // Il carrozzeria blu
-        g.drawRect(50, 150, 400, 70);
-        g.drawLine(170, 150, 200, 100);
-        g.drawLine(330, 150, 300, 100);
-        g.drawLine(300, 100, 200, 100);
-        g.setColor(Color.yellow);                               //luci gialle
-        g.fillRect(50, 170, 20, 30);
-        g.setColor(Color.red);                                  //Il luci rosse
-        g.fillRect(430, 150, 20, 20);
-        g.setColor(Color.PINK);                                 //testo cyan
-        g.drawString("Automobile", 200, 350);
     }
 
     public boolean isGridVisible() {
@@ -96,11 +232,22 @@ public class CNACanvas extends JPanel {
 
     public BufferedImage exportToImage() {
         setGridVisible(true);
-        BufferedImage bi = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = bi.createGraphics();
+        BufferedImage imageToExport = new BufferedImage(
+                this.getSize().width,
+                this.getSize().height,
+                BufferedImage.TYPE_INT_ARGB
+        );
+        Graphics g = imageToExport.createGraphics();
         this.paint(g);
         g.dispose();
-        return bi;
+        return imageToExport;
+    }
+
+    private void resetStageRegisters() {
+        stageRegister = 0;
+        pointRegisterA = new Point(-10, -10);
+        pointRegisterB = new Point(-10, -10);
+        xyDisplay.setText("[INSERT] Punto root");
     }
 
 }

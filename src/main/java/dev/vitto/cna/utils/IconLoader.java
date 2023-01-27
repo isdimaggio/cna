@@ -188,6 +188,7 @@ public class IconLoader {
     public static ImageIcon ELLIPSE_CMD;
     public static ImageIcon FILL_OFF_CMD;
     public static ImageIcon FILL_ON_CMD;
+    public static ImageIcon RENAME_ICON;
 
     static {
         try {
@@ -202,6 +203,14 @@ public class IconLoader {
             PROGRAM_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/program.png")));
         } catch (Exception e) {
             PROGRAM_ICON = new ImageIcon();
+        }
+    }
+
+    static {
+        try {
+            RENAME_ICON = new ImageIcon(ImageIO.read(getFileFromResourceAsStream("images/rename-icon.png")));
+        } catch (Exception e) {
+            RENAME_ICON = new ImageIcon();
         }
     }
 

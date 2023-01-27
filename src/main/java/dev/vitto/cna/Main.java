@@ -31,6 +31,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // imposta look and feel predefinito per avere un tema congruo con quello del sistema
+        // operativo dove viene eseguito
         try {
             UIManager.setLookAndFeel(
                     UIManager.getCrossPlatformLookAndFeelClassName());

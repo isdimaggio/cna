@@ -19,12 +19,17 @@ limitations under the License.
 
 package dev.vitto.cna.utils;
 
+import dev.vitto.cna.Project;
+
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Misc {
+
+    private static int objCounter = 1;
 
     public static String SOFTWARE_INFO = """
             CNA, acronimo ricorsivo di (CNA's not AutoCAD) è un programma di CAD libero \s
@@ -33,6 +38,7 @@ public class Misc {
             Hanno partecipato al progetto: Vittorio Lo Mele, Adele Redina, Gianluca Santoro.
             """;
 
+    // lancio cross-platform del browser web dato un URL
     public static void launchBrowser(String url) {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
@@ -59,11 +65,67 @@ public class Misc {
         }
     }
 
+    // dal nome del progetto ricava il nome del file di esportazione/salvataggio
     public static String elaborateFileName(String projectName) {
         return projectName
                 .toLowerCase()                                                  // tutto minuscolo
                 .replaceAll("\\s+", "_")                     // cambia gli spazi in underscore
                 .replaceAll("[^a-zA-Z0-9_-]", "");           // ripulisce tutto il resto
+    }
+
+    // questa funzione serve a generare un nome diverso di default per tutti i nuovi numeri aggiunti
+    public static int getNextObjNum() {
+        return objCounter++;
+    }
+
+    // questa funzione mostra il dialog per la scelta del contenuto e altezza testo
+    public static boolean textDataInsertionDialog(JFrame parent, Project project) {
+        String sHeight = (String) JOptionPane.showInputDialog(
+                parent,
+                "Inserisci l'altezza del testo in pixel:",
+                "Inserisci testo",
+                JOptionPane.PLAIN_MESSAGE,
+                IconLoader.STROKE_ICON,
+                null,
+                project.getTextHeightForInsert());
+
+        if (sHeight != null) {
+            try {
+                int height = Integer.parseInt(sHeight);
+                String s = (String) JOptionPane.showInputDialog(
+                        parent,
+                        "Inserisci il contenuto del testo:",
+                        "Inserisci testo",
+                        JOptionPane.PLAIN_MESSAGE,
+                        IconLoader.SETTINGS_ICON,
+                        null,
+                        project.getTextContentForInsert());
+
+                if (s != null) {
+                    if (s.length() > 1) {
+                        project.setTextContentForInsert(s);
+                        project.setTextHeightForInsert(height);
+                        return true;
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                parent,
+                                "Valore non valido!",
+                                "Inserisci testo",
+                                JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                }
+            } catch (NumberFormatException ignored) {
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Valore non valido!",
+                        "Inserisci testo",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
+
+        return false;
     }
 
 }
