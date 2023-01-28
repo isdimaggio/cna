@@ -46,7 +46,12 @@ public class EditMenu extends JMenu {
         JMenuItem undoMenuItem = new JMenuItem("Annulla", IconLoader.UNDO_ICON);
         undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, meta_mask));
         undoMenuItem.getAccessibleContext().setAccessibleDescription("Annulla l'ultima modifica fatta");
-        undoMenuItem.addActionListener(e -> project.undo());
+        undoMenuItem.addActionListener(e -> {
+            try {
+                project.removeShapeFromShapesList(project.getShapesList().size() - 1);
+            } catch (Exception ignored) {
+            }
+        });
         add(undoMenuItem);
 
         /*

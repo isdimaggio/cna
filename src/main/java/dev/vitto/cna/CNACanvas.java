@@ -163,7 +163,7 @@ public class CNACanvas extends JPanel {
                                     Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
                             );
                             stageRegister++;
-                            xyDisplay.setText("[INSERT] Punto raggio 1");
+                            xyDisplay.setText("[INSERT] Fine asse maggiore");
                             repaint();
                         } else if (stageRegister == 1) {
                             pointRegisterB = new Point(
@@ -171,7 +171,7 @@ public class CNACanvas extends JPanel {
                                     Misc.objectSnapCalc(e.getY(), project.isObjectSnappingEnabled())
                             );
                             stageRegister++;
-                            xyDisplay.setText("[INSERT] Punto raggio 2");
+                            xyDisplay.setText("[INSERT] Co-vertice");
                             repaint();
                         } else {
                             project.addShapeToShapesList(new Ellipse(

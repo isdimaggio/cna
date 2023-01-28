@@ -59,8 +59,6 @@ public class Project implements java.io.Serializable {
         Cambio Proprietà --> Event Router (MainWindow) --> Dispatch eventi
      */
     private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
-    // dopo ogni property change (per gli elementi funzionali), viene anche effettuata una copia del progetto
-    private Project previousMe = null;
 
     // ********************************* //
 
@@ -131,7 +129,6 @@ public class Project implements java.io.Serializable {
     }
 
     public void clearProject() {
-        previousMe = null;
         projectName = DEFAULT_PROJECT_NAME;
         activeInstrument = 0;
         fillShapesActive = false;
@@ -154,7 +151,6 @@ public class Project implements java.io.Serializable {
     // questa funzione è necessaria siccome rimpiazzare l'oggetto project significherebbe rompere
     // tutti i listener registrati per l'applicazione
     public void replaceSelf(Project newProject) {
-        previousMe = newProject.previousMe;
         projectName = newProject.projectName;
         activeInstrument = newProject.activeInstrument;
         fillShapesActive = newProject.fillShapesActive;
@@ -205,7 +201,6 @@ public class Project implements java.io.Serializable {
             return;
         }
         String oldValue = this.projectName;
-        previousMe = new Project(this);
         this.projectName = projectName;
         mPcs.firePropertyChange(PROJECT_NAME, oldValue, projectName);
     }
@@ -254,7 +249,6 @@ public class Project implements java.io.Serializable {
         ) {
             if (stroke > 30) return;
         }
-        previousMe = new Project(this);
         this.strokesList = strokesList;
         mPcs.firePropertyChange(STROKES_LIST, oldStrokesList, strokesList);
     }
@@ -268,7 +262,6 @@ public class Project implements java.io.Serializable {
         if (stroke > 30) {
             return;
         }
-        previousMe = new Project(this);
         this.strokesList.set(index, stroke);
         mPcs.firePropertyChange(STROKES_LIST, oldStrokesList, strokesList);
     }
@@ -283,7 +276,6 @@ public class Project implements java.io.Serializable {
         if (colorsList.size() != 8) {
             return;
         }
-        previousMe = new Project(this);
         this.colorsList = colorsList;
         mPcs.firePropertyChange(COLORS_LIST, oldColorsList, colorsList);
     }
@@ -293,7 +285,6 @@ public class Project implements java.io.Serializable {
         if (index < 0 || index > 7) {
             return;
         }
-        previousMe = new Project(this);
         this.colorsList.set(index, color);
         mPcs.firePropertyChange(COLORS_LIST, oldColorsList, colorsList);
     }
@@ -377,7 +368,6 @@ public class Project implements java.io.Serializable {
 
     public void setShapesList(List<Shape> shapesList) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
-        previousMe = new Project(this);
         this.shapesList = shapesList;
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -385,14 +375,12 @@ public class Project implements java.io.Serializable {
 
     public void setShapesList(Shape shape, int index) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
-        previousMe = new Project(this);
         this.shapesList.set(index, shape);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
     }
 
     public void addShapeToShapesList(Shape shape) {
-        previousMe = new Project(this);
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
         this.shapesList.add(shape);
         mPcs.firePropertyChange(
@@ -401,7 +389,6 @@ public class Project implements java.io.Serializable {
 
     public void removeShapeFromShapesList(Shape shape) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
-        previousMe = new Project(this);
         this.shapesList.remove(shape);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -409,7 +396,6 @@ public class Project implements java.io.Serializable {
 
     public void removeShapeFromShapesList(int index) {
         List<Shape> oldShapesList = new ArrayList<>(shapesList);
-        previousMe = new Project(this);
         this.shapesList.remove(index);
         mPcs.firePropertyChange(
                 SHAPES_LIST, oldShapesList, shapesList);
@@ -460,12 +446,5 @@ public class Project implements java.io.Serializable {
         mPcs.firePropertyChange(
                 OBJECT_BOUNDARIES, !objectBoundariesEnabled, objectBoundariesEnabled
         );
-    }
-
-    public void undo() {
-        if (previousMe == null)
-            return;
-
-        replaceSelf(previousMe);
     }
 }

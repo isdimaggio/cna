@@ -50,7 +50,7 @@ public class OptionsMenu extends JMenu {
                     JOptionPane.PLAIN_MESSAGE,
                     IconLoader.COLOR_ICON,
                     choices,
-                    1);
+                    project.getActiveColor() + 1);
 
             if (i != null) {
                 i = i - 1;
@@ -77,7 +77,7 @@ public class OptionsMenu extends JMenu {
                     JOptionPane.PLAIN_MESSAGE,
                     IconLoader.STROKE_ICON,
                     choices,
-                    1);
+                    project.getActiveStroke() + 1);
 
             if (i != null) {
                 i = i - 1;
