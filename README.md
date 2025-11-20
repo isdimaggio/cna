@@ -5,11 +5,6 @@ utilizzando il toolkit grafico AWT+Swing.
   
 <img width="1287" alt="image" src="https://user-images.githubusercontent.com/58268988/215205183-ddbfd380-376b-43ba-9be9-60ff78743703.png">
 
-Hanno partecipato al progetto:
-- Vittorio Lo Mele (4Ai)
-- Adele Rendina (4Ai)
-- Gianluca Santoro (4Ai)
-
 ****
 Credits Icone: [Oxygen Icons](https://iconarchive.com/show/oxygen-icons-by-oxygen-icons.org.1.html)
 
